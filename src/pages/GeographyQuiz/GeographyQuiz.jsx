@@ -1,10 +1,11 @@
 import s from "./style.module.css";
 
+import Quiz from "../../quiz_components/Quiz/Quiz";
+import quizData from "./quiz_data";
+
 function GeographyQuiz() {
     return (
-        <div>
-
-        </div>
+        <Quiz quizData={quizData}/>
     );
 }
 

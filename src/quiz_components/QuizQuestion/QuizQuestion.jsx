@@ -1,11 +1,13 @@
 import s from "./style.module.css";
+import Button from 'react-bootstrap/Button';
 
 function QuizQuestion(props) {
     const {
         qnNumber,
         question,
         options,
-        type,
+        handleClick,
+        type, // radio or checkbox
     } = props;
 
     return (
@@ -20,6 +22,15 @@ function QuizQuestion(props) {
                         </div>
                     );
                 })}
+                <Button 
+                    variant="success"
+                    className={`${s.button}`}
+                    onClick={() => {
+                        handleClick(prev => prev + 1);
+                    }}
+                > 
+                    Submit
+                </Button>
             </div>
         </div>
         
