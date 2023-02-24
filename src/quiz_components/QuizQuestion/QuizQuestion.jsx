@@ -1,5 +1,6 @@
 import s from "./style.module.css";
 import Button from 'react-bootstrap/Button';
+import { useState } from "react";
 
 function QuizQuestion(props) {
     const {
@@ -8,7 +9,12 @@ function QuizQuestion(props) {
         options,
         handleClick,
         type, // radio or checkbox
+        setSelectedChoices
     } = props;
+
+    const [selectedOption, setSelectedOption] = useState(-1);
+
+    console.log(selectedOption);
 
     return (
         <div className={`row justify-content-center`}>
@@ -17,8 +23,17 @@ function QuizQuestion(props) {
                 {options.map((option, idx) => {
                     return (
                         <div key={`option-${idx}`} className={s.option_container}>
-                            <input type="radio" id={`option-${idx}`} name={question} value={option} className={s.option_text}/>
-                            <label for={`option-${idx}`}>{option}</label><br></br>
+                            <input 
+                                type="radio" 
+                                id={`option-${idx}`} 
+                                name={question} 
+                                value={idx} 
+                                className={s.option_text}
+                                onChange={e => {
+                                    setSelectedOption(e.target.value);
+                                }}
+                            />
+                            <label htmlFor={`option-${idx}`}>{option}</label><br></br>
                         </div>
                     );
                 })}
@@ -26,10 +41,11 @@ function QuizQuestion(props) {
                     variant="success"
                     className={`${s.button}`}
                     onClick={() => {
+                        setSelectedChoices(prev => [...prev, selectedOption]);
                         handleClick(prev => prev + 1);
                     }}
                 > 
-                    Submit
+                    Next
                 </Button>
             </div>
         </div>

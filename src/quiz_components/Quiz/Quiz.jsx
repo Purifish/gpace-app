@@ -6,6 +6,7 @@ import { useState } from "react";
 function Quiz(props) {
     const { quizData } = props;
     const [curQuestion, setCurQuestion] = useState(0);
+    const [selectedChoices, setSelectedChoices] = useState([]); // holds the answers selected by the quiz taker
 
     return (
         <>
@@ -15,6 +16,7 @@ function Quiz(props) {
                     question={quizData.questions[curQuestion]}
                     options={quizData.options[curQuestion]}
                     handleClick={setCurQuestion}
+                    setSelectedChoices={setSelectedChoices}
                 /> : <h3>Done</h3>
             }
         </>
