@@ -7,9 +7,12 @@ function QuizQuestion(props) {
         qnNumber,
         question,
         options,
-        handleClick,
+        setCurQuestion,
+        solution,
+        score,
+        setUserScore,
         type, // radio or checkbox
-        setSelectedChoices
+        // setSelectedChoices
     } = props;
 
     const [selectedOption, setSelectedOption] = useState(-1);
@@ -30,7 +33,7 @@ function QuizQuestion(props) {
                                 value={idx} 
                                 className={s.option_text}
                                 onChange={e => {
-                                    setSelectedOption(e.target.value);
+                                    setSelectedOption(parseInt(e.target.value));
                                 }}
                             />
                             <label htmlFor={`option-${idx}`}>{option}</label><br></br>
@@ -41,8 +44,12 @@ function QuizQuestion(props) {
                     variant="success"
                     className={`${s.button}`}
                     onClick={() => {
-                        setSelectedChoices(prev => [...prev, selectedOption]);
-                        handleClick(prev => prev + 1);
+                        // setSelectedChoices(prev => [...prev, selectedOption]);
+                        console.log(`Question ${qnNumber}: ${selectedOption}, correct ans: ${solution}`);
+                        if (selectedOption === solution) {
+                            setUserScore(prev => prev + score); // update current score of user
+                        }
+                        setCurQuestion(prev => prev + 1); // navigate to next question
                     }}
                 > 
                     Next

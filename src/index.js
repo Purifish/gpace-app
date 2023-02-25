@@ -15,6 +15,8 @@ root.render(
         <Route path="/" element={<App />}> {/*Parent Route*/}
           <Route path="/" element={<TopicsBrowse />} />
           <Route path="/quiz/geography" element={<GeographyQuiz />} />
+          <Route path="/quiz/math" element={<GeographyQuiz />} />
+          <Route path="/quiz/cpp" element={<GeographyQuiz />} />
           {/* <Route path="/" element={<NoteBrowse />}/>
           <Route path="/note/:noteId" element={<Note />}/>
           <Route path="/note/new" element={<NoteCreate />}/>

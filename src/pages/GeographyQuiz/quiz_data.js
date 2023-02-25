@@ -16,6 +16,12 @@ const quizData = {
             "Asia",
             "Africa"
         ]
+    ],
+    solution: [
+        1, 2
+    ],
+    scores: [
+        2, 2
     ]
 };
 
