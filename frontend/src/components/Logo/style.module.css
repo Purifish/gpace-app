@@ -1,0 +1,12 @@
+.img {
+    height: 45px;
+}
+
+.container {
+    display: flex;
+}
+
+.logo_text {
+    font-size: 30px;
+    font-weight: 700;
+}
