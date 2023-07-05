@@ -7,21 +7,25 @@ import { useParams } from "react-router-dom";
 const quizData = {
   title: "Geography",
   questions: [
-    "What is the capital of China?",
-    "Which continent is the largest?",
+    {
+      title: "What is the capital of China?",
+      options: ["Shanghai", "Beijing", "Peking"],
+      solution: 1,
+      score: 2,
+    },
+    {
+      title: "Which continent is the largest?",
+      options: ["North America", "South America", "Asia", "Africa"],
+      solution: 2,
+      score: 2,
+    },
   ],
-  options: [
-    ["Shanghai", "Beijing", "Peking"],
-    ["North America", "South America", "Asia", "Africa"],
-  ],
-  solution: [1, 2],
-  scores: [2, 2],
 };
 
-function calculateMaxScore(scores) {
+function calculateMaxScore(questions) {
   let total = 0;
-  for (let questionScore of scores) {
-    total += questionScore;
+  for (let question of questions) {
+    total += question.score;
   }
 
   return total;
@@ -34,7 +38,7 @@ function Quiz(props) {
   // const [selectedChoices, setSelectedChoices] = useState([]); // holds the answers selected by the quiz taker
   const [userScore, setUserScore] = useState(0);
   const maxScore = useMemo(() => {
-    return calculateMaxScore(quizData.scores);
+    return calculateMaxScore(quizData.questions);
   }, []);
 
   // TODO: Fetch quiz data from backend using topicName
@@ -52,10 +56,10 @@ function Quiz(props) {
       {curQuestion < quizData.questions.length ? (
         <QuizQuestion
           qnNumber={curQuestion + 1}
-          question={quizData.questions[curQuestion]}
-          options={quizData.options[curQuestion]}
-          solution={quizData.solution[curQuestion]}
-          score={quizData.scores[curQuestion]}
+          question={quizData.questions[curQuestion].title}
+          options={quizData.questions[curQuestion].options}
+          solution={quizData.questions[curQuestion].solution}
+          score={quizData.questions[curQuestion].score}
           setCurQuestion={setCurQuestion}
           setUserScore={setUserScore}
           // setSelectedChoices={setSelectedChoices}

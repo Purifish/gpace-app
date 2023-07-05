@@ -10,4 +10,5 @@
 
 # misc
 /.vscode
+/backend/.vscode
 .DS_Store
