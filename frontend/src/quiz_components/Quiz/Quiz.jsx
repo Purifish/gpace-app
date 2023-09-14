@@ -1,8 +1,10 @@
 import s from "./style.module.css";
 
 import QuizQuestion from "../QuizQuestion/QuizQuestion";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
+
+import Button from "react-bootstrap/Button";
 
 const quizData = {
   title: "Geography",
@@ -33,13 +35,13 @@ function calculateMaxScore(questions) {
 
 function Quiz(props) {
   const { topicName } = useParams();
-  console.log(topicName);
-  const [curQuestion, setCurQuestion] = useState(0);
-  // const [selectedChoices, setSelectedChoices] = useState([]); // holds the answers selected by the quiz taker
+  // console.log(topicName);
   const [userScore, setUserScore] = useState(0);
   const maxScore = useMemo(() => {
     return calculateMaxScore(quizData.questions);
   }, []);
+  const [finished, setFinished] = useState(false);
+  const [isSelected, setIsSelected] = useState();
 
   // TODO: Fetch quiz data from backend using topicName
 
@@ -51,19 +53,68 @@ function Quiz(props) {
     </div>
   );
 
+  useEffect(() => {
+    let temp = [];
+    for (let question of quizData.questions) {
+      temp.push(Array(question.options.length).fill(false));
+    }
+    setIsSelected(temp);
+  }, []);
+
+  const updateSelected = (rowIndex, colIndex, newValue) => {
+    // Create a shallow copy of the grid
+    const temp = [...isSelected];
+
+    // Create a shallow copy of the row
+    const newRow = [...temp[rowIndex]];
+
+    // Update the value at the specified index
+    newRow[colIndex] = newValue;
+
+    // Update the grid with the modified row
+    temp[rowIndex] = newRow;
+
+    // Update the state with the new grid
+    setIsSelected(temp);
+  };
+
+  console.log(isSelected);
   return (
     <>
-      {curQuestion < quizData.questions.length ? (
-        <QuizQuestion
-          qnNumber={curQuestion + 1}
-          question={quizData.questions[curQuestion].title}
-          options={quizData.questions[curQuestion].options}
-          solution={quizData.questions[curQuestion].solution}
-          score={quizData.questions[curQuestion].score}
-          setCurQuestion={setCurQuestion}
-          setUserScore={setUserScore}
-          // setSelectedChoices={setSelectedChoices}
-        />
+      {!finished ? (
+        <>
+          {quizData.questions.map((curQn, idx) => {
+            return (
+              <QuizQuestion
+                key={`qn-${idx}`}
+                qnNumber={idx + 1}
+                question={curQn.title}
+                options={curQn.options}
+                solution={curQn.solution}
+                score={curQn.score}
+                setUserScore={setUserScore}
+                isSelected={isSelected}
+                updateSelected={updateSelected}
+                // setSelectedChoices={setSelectedChoices}
+              />
+            );
+          })}
+          <Button
+            variant="success"
+            className={`${s.button}`}
+            onClick={() => {
+              // console.log(
+              //   `Question ${qnNumber}: ${selectedOption}, correct ans: ${solution}`
+              // );
+              console.log(`Selected option(s): ${isSelected}`);
+              // if (selectedOption === solution) {
+              //   setUserScore((prev) => prev + score); // update current score of user
+              // }
+            }}
+          >
+            Next
+          </Button>
+        </>
       ) : (
         finishedComponent
       )}
