@@ -5,12 +5,7 @@ function QuizQuestion(props) {
     qnNumber, // int
     question, // string
     options, // arr
-    // setCurQuestion,
-    solution,
-    score,
-    setUserScore,
-    isSelected,
-    updateSelected,
+    updateSelected, // func
     type, // radio or checkbox
   } = props;
 
@@ -22,7 +17,7 @@ function QuizQuestion(props) {
           return (
             <div key={`option-${idx}`} className={s.option_container}>
               <input
-                type="checkbox"
+                type={type}
                 id={`option-${idx}`}
                 name={question}
                 value={idx}
@@ -47,10 +42,10 @@ export default QuizQuestion;
 Checkpoint:
     Todo ->
         IMPT: Fix isSelected update issue (FIXED)
-        Settle checkbox stuff
-        Calculate correct score
-        Allow radio and checkbox
-        Remove buttons per qn (only 1 button at the end)
+        Settle checkbox stuff (DONE)
+        Calculate correct score (DONE)
+        Allow radio and checkbox (DONE)
+        Remove buttons per qn (only 1 button at the end) (DONE)
         Use custom buttons (instead of Bootstrap)
         Design buttons with CSS
 

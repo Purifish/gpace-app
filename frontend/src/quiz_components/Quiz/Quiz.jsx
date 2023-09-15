@@ -6,20 +6,22 @@ import { useParams } from "react-router-dom";
 
 import Button from "react-bootstrap/Button";
 
-const quizData = {
+const data = {
   title: "Geography",
   questions: [
     {
       title: "What is the capital of China?",
       options: ["Shanghai", "Beijing", "Peking"],
-      solution: 1,
+      solution: [1], // must be in ascending order
       score: 2,
+      type: "radio",
     },
     {
       title: "Which continent is the largest?",
       options: ["North America", "South America", "Asia", "Africa"],
-      solution: 2,
+      solution: [2],
       score: 2,
+      type: "checkbox",
     },
   ],
 };
@@ -37,11 +39,10 @@ function Quiz(props) {
   const { topicName } = useParams();
   // console.log(topicName);
   const [userScore, setUserScore] = useState(0);
-  const maxScore = useMemo(() => {
-    return calculateMaxScore(quizData.questions);
-  }, []);
   const [finished, setFinished] = useState(false);
   const [isSelected, setIsSelected] = useState();
+  const [quizData, setQuizData] = useState({});
+  const [maxScore, setMaxScore] = useState(0);
 
   // TODO: Fetch quiz data from backend using topicName
 
@@ -54,62 +55,91 @@ function Quiz(props) {
   );
 
   useEffect(() => {
+    // fetch quiz data from backend first
+
     let temp = [];
-    for (let question of quizData.questions) {
+    for (let question of data.questions) {
       temp.push(Array(question.options.length).fill(false));
     }
     setIsSelected(temp);
+    setQuizData(data);
+    setMaxScore(calculateMaxScore(data.questions));
   }, []);
 
-  const updateSelected = (rowIndex, colIndex, newValue) => {
+  const updateSelected = (qnIndex, optionIndex, newValue) => {
     // Create a shallow copy of the grid
     const temp = [...isSelected];
 
     // Create a shallow copy of the row
-    const newRow = [...temp[rowIndex]];
+    const newRow = [...temp[qnIndex]];
+
+    // If new value equals old value, ignore
+    if (newRow[optionIndex] === newValue) {
+      return;
+    }
 
     // Update the value at the specified index
-    newRow[colIndex] = newValue;
+    newRow[optionIndex] = newValue;
 
     // Update the grid with the modified row
-    temp[rowIndex] = newRow;
+    temp[qnIndex] = newRow;
 
     // Update the state with the new grid
     setIsSelected(temp);
   };
+
+  function calculateUserScore() {
+    let score = 0;
+
+    for (let r = 0; r < quizData.questions.length; r++) {
+      const solution = quizData.questions[r].solution; // retrieve solution for this qn
+      let j = 0;
+      let c;
+      for (c = 0; c < isSelected[r].length; c++) {
+        if (isSelected[r][c] === true) {
+          if (j >= solution.length || c !== solution[j]) {
+            break; // wrong answer
+          }
+          j++;
+        }
+      }
+
+      // correct answer
+      if (c === isSelected[r].length && j == solution.length) {
+        score += quizData.questions[r].score;
+      }
+    }
+
+    console.log(score);
+    setUserScore(score);
+  }
 
   console.log(isSelected);
   return (
     <>
       {!finished ? (
         <>
-          {quizData.questions.map((curQn, idx) => {
-            return (
-              <QuizQuestion
-                key={`qn-${idx}`}
-                qnNumber={idx + 1}
-                question={curQn.title}
-                options={curQn.options}
-                solution={curQn.solution}
-                score={curQn.score}
-                setUserScore={setUserScore}
-                isSelected={isSelected}
-                updateSelected={updateSelected}
-                // setSelectedChoices={setSelectedChoices}
-              />
-            );
-          })}
+          {quizData &&
+            quizData.questions &&
+            quizData.questions.map((curQn, idx) => {
+              return (
+                <QuizQuestion
+                  key={`qn-${idx}`}
+                  qnNumber={idx + 1}
+                  question={curQn.title}
+                  options={curQn.options}
+                  updateSelected={updateSelected}
+                  type={curQn.type}
+                />
+              );
+            })}
           <Button
             variant="success"
             className={`${s.button}`}
             onClick={() => {
-              // console.log(
-              //   `Question ${qnNumber}: ${selectedOption}, correct ans: ${solution}`
-              // );
               console.log(`Selected option(s): ${isSelected}`);
-              // if (selectedOption === solution) {
-              //   setUserScore((prev) => prev + score); // update current score of user
-              // }
+              calculateUserScore();
+              setFinished(true);
             }}
           >
             Next
