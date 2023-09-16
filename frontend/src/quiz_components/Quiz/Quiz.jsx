@@ -1,10 +1,12 @@
 import s from "./style.module.css";
 
 import QuizQuestion from "../QuizQuestion/QuizQuestion";
-import { useMemo, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-import Button from "react-bootstrap/Button";
+// import Button from "react-bootstrap/Button";
+import Stack from "@mui/material/Stack";
+import Button from "@mui/material/Button";
 
 const data = {
   title: "Geography",
@@ -20,6 +22,13 @@ const data = {
       title: "Which continent is the largest?",
       options: ["North America", "South America", "Asia", "Africa"],
       solution: [2],
+      score: 2,
+      type: "radio",
+    },
+    {
+      title: "Which of these countries can be found in Asia?",
+      options: ["Japan", "Germany", "Sudan", "Oman", "Laos"],
+      solution: [0, 3, 4],
       score: 2,
       type: "checkbox",
     },
@@ -105,7 +114,7 @@ function Quiz(props) {
       }
 
       // correct answer
-      if (c === isSelected[r].length && j == solution.length) {
+      if (c === isSelected[r].length && j === solution.length) {
         score += quizData.questions[r].score;
       }
     }
@@ -133,17 +142,20 @@ function Quiz(props) {
                 />
               );
             })}
-          <Button
-            variant="success"
-            className={`${s.button}`}
-            onClick={() => {
-              console.log(`Selected option(s): ${isSelected}`);
-              calculateUserScore();
-              setFinished(true);
-            }}
-          >
-            Next
-          </Button>
+          <div className={`${s.button_container}`}>
+            <Button
+              size="large"
+              className={`${s.button}`}
+              variant="contained"
+              onClick={() => {
+                console.log(`Selected option(s): ${isSelected}`);
+                calculateUserScore();
+                setFinished(true);
+              }}
+            >
+              SUBMIT
+            </Button>
+          </div>
         </>
       ) : (
         finishedComponent
