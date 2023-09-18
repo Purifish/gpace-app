@@ -77,6 +77,13 @@ Checkpoint:
         Allow radio and checkbox (DONE)
         Remove buttons per qn (only 1 button at the end) (DONE)
         Use mat-ui buttons (DONE)
-        Design buttons with CSS
+        Design buttons with CSS (SKIPPED)
+
+        Connect to MongoDB
+        Populate DB with quiz data
+        Fetch quiz data
+
+        Authentication Matters
+
 
 */

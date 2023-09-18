@@ -5,8 +5,8 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 // import Button from "react-bootstrap/Button";
-import Stack from "@mui/material/Stack";
 import Button from "@mui/material/Button";
+import QuizResult from "../QuizResult/QuizResult";
 
 const data = {
   title: "Geography",
@@ -54,14 +54,6 @@ function Quiz(props) {
   const [maxScore, setMaxScore] = useState(0);
 
   // TODO: Fetch quiz data from backend using topicName
-
-  const finishedComponent = (
-    <div>
-      <h3>
-        You Scored {userScore}/{maxScore}
-      </h3>
-    </div>
-  );
 
   useEffect(() => {
     // fetch quiz data from backend first
@@ -123,7 +115,7 @@ function Quiz(props) {
     setUserScore(score);
   }
 
-  console.log(isSelected);
+  // console.log(isSelected);
   return (
     <>
       {!finished ? (
@@ -148,7 +140,7 @@ function Quiz(props) {
               className={`${s.button}`}
               variant="contained"
               onClick={() => {
-                console.log(`Selected option(s): ${isSelected}`);
+                // console.log(`Selected option(s): ${isSelected}`);
                 calculateUserScore();
                 setFinished(true);
               }}
@@ -158,7 +150,11 @@ function Quiz(props) {
           </div>
         </>
       ) : (
-        finishedComponent
+        <QuizResult
+          userScore={userScore}
+          maxScore={maxScore}
+          quizTopic={quizData.title}
+        />
       )}
     </>
   );
