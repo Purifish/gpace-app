@@ -1,0 +1,14 @@
+.img {
+  height: 45px;
+  cursor: pointer;
+}
+
+.container {
+  display: flex;
+}
+
+.logo_text {
+  font-size: 30px;
+  font-weight: 700;
+  cursor: pointer;
+}
