@@ -4,12 +4,7 @@ const questionControllers = require("../controllers/questions-controllers");
 
 const router = express.Router();
 
-router.get("/", (req, res, next) => {
-  console.log("TEST");
-  res.status(200).json({
-    message: "Hello, all good",
-  });
-});
+router.get("/:topic", questionControllers.getQuestionsByTopic);
 
 router.post("/", questionControllers.createQuestion);
 

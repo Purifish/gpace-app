@@ -79,8 +79,10 @@ Checkpoint:
         Use mat-ui buttons (DONE)
         Design buttons with CSS (SKIPPED)
 
-        Connect to MongoDB
-        Populate DB with quiz data
+        Connect to MongoDB (DONE)
+        Populate DB with quiz data (PARTIAL DONE)
+        Allow an image for quiz question in frontend
+        Modify backend to allow image
         Fetch quiz data
 
         Authentication Matters

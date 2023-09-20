@@ -6,10 +6,21 @@ const HttpError = require("../models/http-error");
 
 const Quiz = require("../models/quiz");
 
-const getQuizByTopic = async (req, res, next) => {};
+const getTopics = async (req, res, next) => {
+  let topics;
+  try {
+    topics = await Quiz.find({}, "-questions");
+  } catch (err) {
+    return next(new HttpError("Error fetching topics, try again later", 500));
+  }
+
+  res.json({
+    topics: topics.map((topic) => topic.toObject({ getters: true })),
+  });
+};
 
 const createQuiz = async (req, res, next) => {
-  const { topic } = req.body;
+  const topic = req.body.topic.toLowerCase();
 
   let existingTopic;
 
@@ -45,3 +56,4 @@ const createQuiz = async (req, res, next) => {
 };
 
 exports.createQuiz = createQuiz;
+exports.getTopics = getTopics;

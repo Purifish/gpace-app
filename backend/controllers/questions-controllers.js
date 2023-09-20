@@ -51,24 +51,40 @@ const createQuestion = async (req, res, next) => {
   });
 };
 
-// const getQuestionsByTopic = async (req, res, next) => {};
+const getQuestionsByTopic = async (req, res, next) => {
+  const topic = req.params.topic;
 
-// const getPlacesbyUserId = async (req, res, next) => {
-//   const userId = req.params.uid;
+  /* Check that the quiz exists first*/
+  let quiz;
+  try {
+    quiz = await Quiz.findOne({ topic: topic });
+  } catch (err) {
+    const error = new HttpError("Failed to access questions! Try again.", 500);
+    return next(error);
+  }
 
-//   let userPlaces;
-//   try {
-//     userPlaces = await Place.find({ creator: userId });
-//   } catch (err) {
-//     return next(new HttpError("Error retrieving places from the DB", 500));
-//   }
-//   if (userPlaces.length === 0) {
-//     next(new HttpError("Invalid user id or user has no places!", 404));
-//     return;
-//   }
-//   res.json({
-//     places: userPlaces.map((place) => place.toObject({ getters: true })),
-//   });
-// };
+  if (!quiz) {
+    const error = new HttpError("Invalid topic", 404);
+    return next(error);
+  }
+
+  let quizQuestions;
+  try {
+    quizQuestions = await Question.find({ topic: quiz._id });
+  } catch (err) {
+    return next(new HttpError("Error retrieving questions from the DB", 500));
+  }
+
+  if (quizQuestions.length === 0) {
+    next(new HttpError("This quiz has no questions!", 404));
+    return;
+  }
+  res.json({
+    questions: quizQuestions.map((question) =>
+      question.toObject({ getters: true })
+    ),
+  });
+};
 
 exports.createQuestion = createQuestion;
+exports.getQuestionsByTopic = getQuestionsByTopic;

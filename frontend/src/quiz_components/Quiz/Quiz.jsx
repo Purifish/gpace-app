@@ -7,33 +7,34 @@ import { useParams } from "react-router-dom";
 // import Button from "react-bootstrap/Button";
 import Button from "@mui/material/Button";
 import QuizResult from "../QuizResult/QuizResult";
+import { useHttpClient } from "../../hooks/http-hook";
 
-const data = {
-  title: "Geography",
-  questions: [
-    {
-      title: "What is the capital of China?",
-      options: ["Shanghai", "Beijing", "Peking"],
-      solution: [1], // must be in ascending order
-      score: 2,
-      type: "radio",
-    },
-    {
-      title: "Which continent is the largest?",
-      options: ["North America", "South America", "Asia", "Africa"],
-      solution: [2],
-      score: 2,
-      type: "radio",
-    },
-    {
-      title: "Which of these countries can be found in Asia?",
-      options: ["Japan", "Germany", "Sudan", "Oman", "Laos"],
-      solution: [0, 3, 4],
-      score: 2,
-      type: "checkbox",
-    },
-  ],
-};
+// const data = {
+//   title: "Geography",
+//   questions: [
+//     {
+//       title: "What is the capital of China?",
+//       options: ["Shanghai", "Beijing", "Peking"],
+//       solution: [1], // must be in ascending order
+//       score: 2,
+//       type: "radio",
+//     },
+//     {
+//       title: "Which continent is the largest?",
+//       options: ["North America", "South America", "Asia", "Africa"],
+//       solution: [2],
+//       score: 2,
+//       type: "radio",
+//     },
+//     {
+//       title: "Which of these countries can be found in Asia?",
+//       options: ["Japan", "Germany", "Sudan", "Oman", "Laos"],
+//       solution: [0, 3, 4],
+//       score: 2,
+//       type: "checkbox",
+//     },
+//   ],
+// };
 
 function calculateMaxScore(questions) {
   let total = 0;
@@ -45,27 +46,33 @@ function calculateMaxScore(questions) {
 }
 
 function Quiz(props) {
-  const { topicName } = useParams();
-  // console.log(topicName);
+  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const topic = decodeURI(useParams().topicName);
   const [userScore, setUserScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const [isSelected, setIsSelected] = useState();
   const [quizData, setQuizData] = useState({});
   const [maxScore, setMaxScore] = useState(0);
 
-  // TODO: Fetch quiz data from backend using topicName
-
   useEffect(() => {
     // fetch quiz data from backend first
-
-    let temp = [];
-    for (let question of data.questions) {
-      temp.push(Array(question.options.length).fill(false));
-    }
-    setIsSelected(temp);
-    setQuizData(data);
-    setMaxScore(calculateMaxScore(data.questions));
-  }, []);
+    const fetchQuestions = async () => {
+      try {
+        const responseData = await sendRequest(
+          `${process.env.REACT_APP_BACKEND_URL}/questions/${topic}`
+        );
+        setQuizData(responseData);
+        let temp = [];
+        for (let question of responseData.questions) {
+          temp.push(Array(question.options.length).fill(false));
+        }
+        setIsSelected(temp);
+        // setQuizData(data);
+        setMaxScore(calculateMaxScore(responseData.questions));
+      } catch (err) {}
+    };
+    fetchQuestions();
+  }, [sendRequest, topic]);
 
   const updateSelected = (qnIndex, optionIndex, newValue) => {
     // Create a shallow copy of the grid
@@ -153,7 +160,7 @@ function Quiz(props) {
         <QuizResult
           userScore={userScore}
           maxScore={maxScore}
-          quizTopic={quizData.title}
+          quizTopic={topic}
         />
       )}
     </>
