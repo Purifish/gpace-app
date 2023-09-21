@@ -138,23 +138,27 @@ function Quiz(props) {
                   options={curQn.options}
                   updateSelected={updateSelected}
                   type={curQn.type}
+                  imageSrc={curQn.image}
                 />
               );
             })}
-          <div className={`${s.button_container}`}>
-            <Button
-              size="large"
-              className={`${s.button}`}
-              variant="contained"
-              onClick={() => {
-                // console.log(`Selected option(s): ${isSelected}`);
-                calculateUserScore();
-                setFinished(true);
-              }}
-            >
-              SUBMIT
-            </Button>
-          </div>
+          {quizData && quizData.questions && quizData.questions.length > 0 ? (
+            <div className={`${s.button_container}`}>
+              <Button
+                size="large"
+                className={`${s.button}`}
+                variant="contained"
+                onClick={() => {
+                  calculateUserScore();
+                  setFinished(true);
+                }}
+              >
+                SUBMIT
+              </Button>
+            </div>
+          ) : (
+            <h2> No Questions For This Quiz! </h2>
+          )}
         </>
       ) : (
         <QuizResult

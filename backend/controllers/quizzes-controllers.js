@@ -21,7 +21,6 @@ const getTopics = async (req, res, next) => {
 
 const createQuiz = async (req, res, next) => {
   const topic = req.body.topic.toLowerCase();
-
   let existingTopic;
 
   try {
@@ -39,6 +38,7 @@ const createQuiz = async (req, res, next) => {
 
   const newQuiz = new Quiz({
     topic: topic,
+    image: req.file.path,
     questions: [],
   });
 

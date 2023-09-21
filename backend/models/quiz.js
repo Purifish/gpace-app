@@ -3,6 +3,7 @@ const uniqueValidator = require("mongoose-unique-validator");
 
 const quizSchema = new mongoose.Schema({
   topic: { type: String, required: true } /* e.g. Geography */,
+  image: { type: String, required: true } /* file path */,
   questions: [
     { type: mongoose.Types.ObjectId, required: true, ref: "Question" },
   ],

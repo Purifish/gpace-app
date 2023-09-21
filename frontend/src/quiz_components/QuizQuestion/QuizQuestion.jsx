@@ -14,6 +14,7 @@ function QuizQuestion(props) {
     options, // arr
     updateSelected, // func
     type, // radio or checkbox
+    imageSrc,
   } = props;
 
   const optionComponents = options.map((option, idx) => {
@@ -54,6 +55,15 @@ function QuizQuestion(props) {
     <div className={`row justify-content-center`}>
       <div className={s.container}>
         <h3 className={s.question}>{`${qnNumber}. ${question}`}</h3>
+        {imageSrc !== "" && (
+          <div>
+            <img
+              src={`${process.env.REACT_APP_ASSET_URL}/${imageSrc}`}
+              alt={`quiz question image`}
+              className={`${s.img}`}
+            />
+          </div>
+        )}
         {type === "radio" ? (
           <FormControl>
             <RadioGroup>{optionComponents}</RadioGroup>
@@ -80,10 +90,11 @@ Checkpoint:
         Design buttons with CSS (SKIPPED)
 
         Connect to MongoDB (DONE)
-        Populate DB with quiz data (PARTIAL DONE)
+        Populate DB with quiz data (DONE)
+        Fetch quiz data (DONE)
         Allow an image for quiz question in frontend
         Modify backend to allow image
-        Fetch quiz data
+        
 
         Authentication Matters
 
