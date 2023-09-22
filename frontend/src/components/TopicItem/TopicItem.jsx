@@ -1,3 +1,4 @@
+import { Button } from "@mui/material";
 import s from "./style.module.css";
 
 function TopicItem(props) {
@@ -18,13 +19,9 @@ function TopicItem(props) {
           Some quick example text to build on the card title and make up the
           bulk of the card's content.
         </p>
-        <button
-          type="button"
-          className={`btn btn-dark ${s.button}`}
-          onClick={startQuiz}
-        >
+        <Button variant="outlined" onClick={startQuiz}>
           Start
-        </button>
+        </Button>
       </div>
     </div>
   );

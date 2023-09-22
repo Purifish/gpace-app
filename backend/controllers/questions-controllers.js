@@ -76,7 +76,10 @@ const getQuestionsByTopic = async (req, res, next) => {
   }
 
   if (quizQuestions.length === 0) {
-    next(new HttpError("This quiz has no questions!", 404));
+    // next(new HttpError("This quiz has no questions!", 404));
+    res.json({
+      questions: [],
+    });
     return;
   }
   res.json({

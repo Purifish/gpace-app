@@ -54,12 +54,12 @@ function QuizQuestion(props) {
   return (
     <div className={`row justify-content-center`}>
       <div className={s.container}>
-        <h3 className={s.question}>{`${qnNumber}. ${question}`}</h3>
+        <h4 className={s.question}>{`${qnNumber}. ${question}`}</h4>
         {imageSrc !== "" && (
           <div>
             <img
               src={`${process.env.REACT_APP_ASSET_URL}/${imageSrc}`}
-              alt={`quiz question image`}
+              alt={`quiz question`}
               className={`${s.img}`}
             />
           </div>
@@ -92,10 +92,10 @@ Checkpoint:
         Connect to MongoDB (DONE)
         Populate DB with quiz data (DONE)
         Fetch quiz data (DONE)
-        Allow an image for quiz question in frontend
-        Modify backend to allow image
+        Allow an image for quiz question in frontend (DONE)
+        Modify backend to allow image (DONE)
+        Use mat-ui buttons instead of bootstrap buttons
         
-
         Authentication Matters
 
 

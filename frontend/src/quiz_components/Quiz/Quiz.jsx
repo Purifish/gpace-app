@@ -6,6 +6,8 @@ import { useParams } from "react-router-dom";
 
 // import Button from "react-bootstrap/Button";
 import Button from "@mui/material/Button";
+
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import QuizResult from "../QuizResult/QuizResult";
 import { useHttpClient } from "../../hooks/http-hook";
 
@@ -52,7 +54,7 @@ function Quiz(props) {
   const [finished, setFinished] = useState(false);
   const [isSelected, setIsSelected] = useState();
   const [quizData, setQuizData] = useState({});
-  const [maxScore, setMaxScore] = useState(0);
+  const [maxScore, setMaxScore] = useState(-1);
 
   useEffect(() => {
     // fetch quiz data from backend first
@@ -61,6 +63,12 @@ function Quiz(props) {
         const responseData = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/questions/${topic}`
         );
+
+        if (responseData.questions.length === 0) {
+          setMaxScore(0);
+          return;
+        }
+
         setQuizData(responseData);
         let temp = [];
         for (let question of responseData.questions) {
@@ -73,6 +81,14 @@ function Quiz(props) {
     };
     fetchQuestions();
   }, [sendRequest, topic]);
+
+  if (maxScore === -1) {
+    return (
+      <div className="center">
+        <LoadingSpinner asOverlay />
+      </div>
+    );
+  }
 
   const updateSelected = (qnIndex, optionIndex, newValue) => {
     // Create a shallow copy of the grid
