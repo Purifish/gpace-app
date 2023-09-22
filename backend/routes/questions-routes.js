@@ -13,4 +13,10 @@ router.post(
   questionControllers.createQuestion
 );
 
+router.patch(
+  "/:qid",
+  fileUpload.single("image"),
+  questionControllers.updateQuestion
+);
+
 module.exports = router;

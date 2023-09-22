@@ -3,6 +3,41 @@ const Quiz = require("../models/quiz");
 const Question = require("../models/question");
 const mongoose = require("mongoose");
 
+const updateQuestion = async (req, res, next) => {
+  const { title, options, solution, score, type } = req.body;
+
+  let question;
+  try {
+    question = await Question.findById(req.params.qid);
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong! could not update question.", 500)
+    );
+  }
+
+  if (!question) {
+    return next(new HttpError("Invalid question ID", 500));
+  }
+
+  if (title) question.title = title;
+  if (options) question.options = JSON.parse(options);
+  if (solution) question.solution = JSON.parse(solution);
+  if (score) question.score = score;
+  if (type) question.type = type;
+
+  try {
+    await question.save();
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong, could not update question.", 500)
+    );
+  }
+
+  res.json({
+    question: question.toObject({ getters: true }),
+  });
+};
+
 const createQuestion = async (req, res, next) => {
   const { topic, title, options, solution, score, type } = req.body;
   let quiz;
@@ -91,3 +126,4 @@ const getQuestionsByTopic = async (req, res, next) => {
 
 exports.createQuestion = createQuestion;
 exports.getQuestionsByTopic = getQuestionsByTopic;
+exports.updateQuestion = updateQuestion;
