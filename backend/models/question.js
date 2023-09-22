@@ -3,8 +3,10 @@ const mongoose = require("mongoose");
 const questionSchema = new mongoose.Schema({
   title: { type: String, required: true } /* e.g. What is 1 + 1? */,
   options: [{ type: String, required: true }],
-  solution: { type: Number, required: true },
+  solution: [{ type: Number, required: true }],
   score: { type: Number, required: true },
+  type: { type: String, required: true },
+  image: { type: String, required: false },
   /* connect 'topic' property to 'Quiz' schema */
   topic: { type: mongoose.Types.ObjectId, required: true, ref: "Quiz" },
 });

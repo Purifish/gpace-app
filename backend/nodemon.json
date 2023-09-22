@@ -1,0 +1,8 @@
+{
+  "env": {
+    "DB_USER": "purifish",
+    "DB_PASSWORD": "Rdsprwb7658",
+    "DB_NAME": "quiz_app",
+    "JWT_KEY": "supersecret_dont_share"
+  }
+}

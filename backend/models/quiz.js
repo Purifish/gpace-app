@@ -1,10 +1,14 @@
 const mongoose = require("mongoose");
+const uniqueValidator = require("mongoose-unique-validator");
 
 const quizSchema = new mongoose.Schema({
-  title: { type: String, required: true } /* e.g. Geography */,
+  topic: { type: String, required: true } /* e.g. Geography */,
+  image: { type: String, required: true } /* file path */,
   questions: [
     { type: mongoose.Types.ObjectId, required: true, ref: "Question" },
   ],
 });
+
+quizSchema.plugin(uniqueValidator); // force topic to be unique
 
 module.exports = mongoose.model("Quiz", quizSchema);
