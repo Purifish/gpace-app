@@ -2,9 +2,16 @@ import s from "./style.module.css";
 
 function VideoResource(props) {
   const { title, description, videoLink } = props;
+
   return (
-    <div className={`${s.container}`}>
-      <h2>Testing</h2>
+    <div className={`card ${s.container}`}>
+      <div className="card-body">
+        <h5 className="card-title">{title}</h5>
+        <a type="button" target="_blank" rel="noopener" href={videoLink}>
+          Link
+        </a>
+        <p className="card-text">{description}</p>
+      </div>
     </div>
   );
 }
