@@ -20,7 +20,7 @@ function TopicItem(props) {
           bulk of the card's content.
         </p>
         <Button variant="outlined" onClick={startQuiz}>
-          Start
+          Explore
         </Button>
       </div>
     </div>

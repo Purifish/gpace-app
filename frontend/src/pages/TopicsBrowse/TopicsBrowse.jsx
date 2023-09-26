@@ -56,7 +56,8 @@ function TopicsBrowse(props) {
                 topicName={topicItem.topic}
                 imgSrc={topicItem.image}
                 startQuiz={() =>
-                  navigate(`/quiz/${encodeURIComponent(topicItem.topic)}`)
+                  // navigate(`/quiz/${encodeURIComponent(topicItem.topic)}`)
+                  navigate(`/resources/${encodeURIComponent(topicItem.topic)}`)
                 }
               />
             </div>

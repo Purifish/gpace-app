@@ -2,9 +2,13 @@ import s from "./style.module.css";
 
 function NotesResource(props) {
   const { title, description, notesFile, notesLink } = props;
+
   return (
-    <div className={`${s.container}`}>
-      <h2>Testing</h2>
+    <div className={`card ${s.container}`}>
+      <div className="card-body">
+        <h5 className="card-title">{capitalizedTopic}</h5>
+        <p className="card-text">{description}</p>
+      </div>
     </div>
   );
 }
