@@ -7,6 +7,9 @@ const mongoose = require("mongoose");
 
 const quizzesRoutes = require("./routes/quizzes-routes");
 const questionsRoutes = require("./routes/questions-routes");
+const coursesRoutes = require("./routes/courses-routes");
+const notesRoutes = require("./routes/notes-routes");
+const videosRoutes = require("./routes/videos-routes");
 const HttpError = require("./models/http-error");
 
 const app = express();
@@ -31,6 +34,12 @@ app.use((req, res, next) => {
 app.use("/api/quizzes", quizzesRoutes);
 
 app.use("/api/questions", questionsRoutes);
+
+app.use("/api/courses", coursesRoutes);
+
+app.use("/api/notes", notesRoutes);
+
+// app.use("/api/videos", videosRoutes);
 
 /*
   "default" path
