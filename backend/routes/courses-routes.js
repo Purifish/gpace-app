@@ -11,9 +11,11 @@ router.get("/", coursesControllers.getCourses);
 
 router.post(
   "/create",
-  fileUpload.single("image"),
+  fileUpload.imageUpload.single("image"),
   coursesControllers.createCourse
 );
+
+router.get("/:courseId", coursesControllers.getResourcesByCourseId);
 
 // router.post("/dummy", fileUpload.single("image"), async (req, res, next) => {
 //   console.log("YOO");

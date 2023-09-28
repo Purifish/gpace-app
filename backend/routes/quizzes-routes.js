@@ -11,7 +11,7 @@ router.get("/", quizzesControllers.getTopics);
 
 router.post(
   "/createquiz",
-  fileUpload.single("image"),
+  fileUpload.imageUpload.single("image"),
   quizzesControllers.createQuiz
 );
 

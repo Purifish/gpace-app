@@ -5,6 +5,9 @@
 const HttpError = require("../models/http-error");
 
 const Course = require("../models/course");
+const Note = require("../models/note");
+const Video = require("../models/video");
+// const Note = require("../models/note");
 
 const getCourses = async (req, res, next) => {
   let courses;
@@ -63,5 +66,44 @@ const createCourse = async (req, res, next) => {
   });
 };
 
+const getResourcesByCourseId = async (req, res, next) => {
+  const courseId = req.params.courseId;
+
+  /* Check that the course exists first*/
+  let course;
+  try {
+    course = await Course.findById(courseId);
+  } catch (err) {
+    const error = new HttpError("Failed to access database! Try again.", 500);
+    return next(error);
+  }
+
+  if (!course) {
+    const error = new HttpError("Invalid course ID", 404);
+    return next(error);
+  }
+
+  // let quizQuestions;
+  let notes, videos;
+  try {
+    // quizQuestions = await Question.find({ topic: quiz._id });
+    notes = await Note.find({ course: courseId });
+    videos = await Video.find({ course: courseId });
+  } catch (err) {
+    return next(new HttpError("Error retrieving data from the DB", 500));
+  }
+
+  res.json({
+    notes: notes.map((note) => {
+      return note.toObject({ getters: true });
+    }),
+    videos: videos.map((video) => {
+      return video.toObject({ getters: true });
+    }),
+    tutors: [],
+  });
+};
+
 exports.createCourse = createCourse;
 exports.getCourses = getCourses;
+exports.getResourcesByCourseId = getResourcesByCourseId;

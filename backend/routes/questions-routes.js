@@ -9,13 +9,13 @@ router.get("/:topic", questionControllers.getQuestionsByTopic);
 
 router.post(
   "/",
-  fileUpload.single("image"),
+  fileUpload.imageUpload.single("image"),
   questionControllers.createQuestion
 );
 
 router.patch(
   "/:qid",
-  fileUpload.single("image"),
+  fileUpload.imageUpload.single("image"),
   questionControllers.updateQuestion
 );
 

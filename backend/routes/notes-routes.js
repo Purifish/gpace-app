@@ -7,7 +7,11 @@ const router = express.Router();
 
 // router.get("/:topic", notesControllers.getQuestionsByTopic);
 
-router.post("/", fileUpload.single("image"), notesControllers.createNote);
+router.post(
+  "/",
+  fileUpload.pdfUpload.single("pdf"),
+  notesControllers.createNote
+);
 
 // router.patch(
 //   "/:qid",

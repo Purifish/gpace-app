@@ -39,7 +39,7 @@ app.use("/api/courses", coursesRoutes);
 
 app.use("/api/notes", notesRoutes);
 
-// app.use("/api/videos", videosRoutes);
+app.use("/api/video", videosRoutes);
 
 /*
   "default" path

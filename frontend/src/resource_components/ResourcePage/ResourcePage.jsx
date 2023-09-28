@@ -42,11 +42,12 @@ function ResourcePage(props) {
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [resourceData, setResourceData] = useState(data);
 
+  // CHECKPOINT
   useEffect(() => {
     // const fetchResources = async () => {
     //   try {
     //     const responseData = await sendRequest(
-    //       `${process.env.REACT_APP_BACKEND_URL}/???/${topic}`
+    //       `${process.env.REACT_APP_BACKEND_URL}/courses/${topic}`
     //     );
     //     setResourceData(responseData);
     //   } catch (err) {}
