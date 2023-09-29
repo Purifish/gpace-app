@@ -3,8 +3,8 @@ import TopicItem from "../../components/TopicItem/TopicItem";
 
 import { useNavigate } from "react-router-dom";
 
-import logoImg from "../../assets/images/logo.png";
-import mathImg from "../../assets/images/math.png";
+// import logoImg from "../../assets/images/logo.png";
+// import mathImg from "../../assets/images/math.png";
 import { useHttpClient } from "../../hooks/http-hook";
 import { useEffect, useState } from "react";
 
@@ -29,35 +29,36 @@ import { useEffect, useState } from "react";
 function TopicsBrowse(props) {
   const navigate = useNavigate();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  const [topicList, setTopicList] = useState();
+  const [coursesList, setCoursesList] = useState();
 
   useEffect(() => {
-    const fetchTopics = async () => {
+    const fetchCourses = async () => {
       try {
         const responseData = await sendRequest(
-          `${process.env.REACT_APP_BACKEND_URL}/quizzes/`
+          `${process.env.REACT_APP_BACKEND_URL}/courses/`
         );
-        setTopicList(responseData.topics);
+        setCoursesList(responseData.courses);
       } catch (err) {}
     };
-    fetchTopics();
+    fetchCourses();
   }, [sendRequest]);
 
   return (
-    topicList && (
+    coursesList && (
       <div className={`row justify-content-center`}>
-        {topicList.map((topicItem, idx) => {
+        {coursesList.map((topicItem, idx) => {
           return (
             <div
-              key={`topicList${idx}`}
+              key={`courseList${idx}`}
               className={`${s.card_container} col-xs-12 col-sm-6 col-md-4 col-lg-3`}
             >
               <TopicItem
-                topicName={topicItem.topic}
+                topicName={topicItem.courseTitle}
                 imgSrc={topicItem.image}
                 startQuiz={() =>
-                  // navigate(`/quiz/${encodeURIComponent(topicItem.topic)}`)
-                  navigate(`/resources/${encodeURIComponent(topicItem.topic)}`)
+                  navigate(
+                    `/resources/${encodeURIComponent(topicItem.courseTitle)}`
+                  )
                 }
               />
             </div>

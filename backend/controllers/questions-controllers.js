@@ -1,5 +1,5 @@
 const HttpError = require("../models/http-error");
-const Quiz = require("../models/quiz");
+const Course = require("../models/course");
 const Question = require("../models/question");
 const mongoose = require("mongoose");
 
@@ -40,18 +40,18 @@ const updateQuestion = async (req, res, next) => {
 
 const createQuestion = async (req, res, next) => {
   const { topic, title, options, solution, score, type } = req.body;
-  let quiz;
+  let course;
 
   /* Check that the quiz exists first*/
   try {
-    quiz = await Quiz.findOne({ topic: topic });
+    course = await Course.findOne({ courseTitle: topic });
   } catch (err) {
     const error = new HttpError("Failed to add question! Try again.", 500);
     return next(error);
   }
 
-  if (!quiz) {
-    const error = new HttpError("Invalid topic", 404);
+  if (!course) {
+    const error = new HttpError("Invalid course", 404);
     return next(error);
   }
 
@@ -62,7 +62,7 @@ const createQuestion = async (req, res, next) => {
     score: score,
     type: type,
     image: req.file ? req.file.path : "",
-    topic: quiz._id,
+    topic: course._id,
   });
 
   try {
@@ -72,8 +72,8 @@ const createQuestion = async (req, res, next) => {
 
     await createdQuestion.save({ session: session }); // remember to specify the session
     console.log("1");
-    quiz.questions.push(createdQuestion); // only the ID is actually pushed
-    await quiz.save({ session: session });
+    course.quizQuestions.push(createdQuestion); // only the ID is actually pushed
+    await course.save({ session: session });
     console.log("2");
     await session.commitTransaction(); // all changes successful, commit them to the DB
   } catch (err) {
@@ -87,25 +87,25 @@ const createQuestion = async (req, res, next) => {
 };
 
 const getQuestionsByTopic = async (req, res, next) => {
-  const topic = req.params.topic;
+  const topic = decodeURI(req.params.topic);
 
   /* Check that the quiz exists first*/
-  let quiz;
+  let course;
   try {
-    quiz = await Quiz.findOne({ topic: topic });
+    course = await Course.findOne({ courseTitle: topic });
   } catch (err) {
     const error = new HttpError("Failed to access questions! Try again.", 500);
     return next(error);
   }
 
-  if (!quiz) {
+  if (!course) {
     const error = new HttpError("Invalid topic", 404);
     return next(error);
   }
 
   let quizQuestions;
   try {
-    quizQuestions = await Question.find({ topic: quiz._id });
+    quizQuestions = await Question.find({ topic: course._id });
   } catch (err) {
     return next(new HttpError("Error retrieving questions from the DB", 500));
   }

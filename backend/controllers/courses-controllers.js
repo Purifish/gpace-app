@@ -68,27 +68,32 @@ const createCourse = async (req, res, next) => {
 
 const getResourcesByCourseId = async (req, res, next) => {
   const courseId = req.params.courseId;
+  const courseTitle = decodeURI(req.params.courseTitle);
 
   /* Check that the course exists first*/
   let course;
   try {
-    course = await Course.findById(courseId);
+    if (courseId) {
+      course = await Course.findById(courseId);
+    } else {
+      course = await Course.findOne({ courseTitle: courseTitle });
+    }
+    // quiz = await Quiz.findOne({ topic: topic });
   } catch (err) {
     const error = new HttpError("Failed to access database! Try again.", 500);
     return next(error);
   }
 
   if (!course) {
-    const error = new HttpError("Invalid course ID", 404);
+    const error = new HttpError("Invalid course ID or title", 404);
     return next(error);
   }
 
   // let quizQuestions;
   let notes, videos;
   try {
-    // quizQuestions = await Question.find({ topic: quiz._id });
-    notes = await Note.find({ course: courseId });
-    videos = await Video.find({ course: courseId });
+    notes = await Note.find({ course: course._id });
+    videos = await Video.find({ course: course._id });
   } catch (err) {
     return next(new HttpError("Error retrieving data from the DB", 500));
   }

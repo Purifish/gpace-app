@@ -15,7 +15,9 @@ router.post(
   coursesControllers.createCourse
 );
 
-router.get("/:courseId", coursesControllers.getResourcesByCourseId);
+router.get("/:courseTitle", coursesControllers.getResourcesByCourseId);
+
+router.get("id/:courseId", coursesControllers.getResourcesByCourseId);
 
 // router.post("/dummy", fileUpload.single("image"), async (req, res, next) => {
 //   console.log("YOO");

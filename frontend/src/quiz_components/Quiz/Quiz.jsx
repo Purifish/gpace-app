@@ -61,10 +61,12 @@ function Quiz(props) {
     const fetchQuestions = async () => {
       try {
         const responseData = await sendRequest(
-          `${process.env.REACT_APP_BACKEND_URL}/questions/${topic}`
+          `${process.env.REACT_APP_BACKEND_URL}/questions/${encodeURIComponent(
+            topic
+          )}`
         );
 
-        if (responseData.questions.length === 0) {
+        if (!responseData.questions || responseData.questions.length === 0) {
           setMaxScore(0);
           return;
         }
