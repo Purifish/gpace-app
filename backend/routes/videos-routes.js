@@ -6,7 +6,11 @@ const router = express.Router();
 
 // router.get("/:topic", notesControllers.getQuestionsByTopic);
 
-router.post("/", fileUpload.pdfUpload.any(), videoControllers.createVideo);
+router.post(
+  "/create/:courseId",
+  fileUpload.pdfUpload.any(),
+  videoControllers.createVideo
+);
 
 // router.patch(
 //   "/:qid",

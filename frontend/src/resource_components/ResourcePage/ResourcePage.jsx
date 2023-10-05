@@ -40,7 +40,8 @@ import VideoResource from "../VideoResource/VideoResource";
 // };
 
 function ResourcePage(props) {
-  const topic = decodeURI(useParams().topicName);
+  const courseTitle = decodeURI(useParams().courseTitle);
+  const courseId = useParams().courseId;
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [resourceData, setResourceData] = useState({});
 
@@ -49,16 +50,14 @@ function ResourcePage(props) {
     const fetchResources = async () => {
       try {
         const responseData = await sendRequest(
-          `${process.env.REACT_APP_BACKEND_URL}/courses/${encodeURIComponent(
-            topic
-          )}`
+          `${process.env.REACT_APP_BACKEND_URL}/courses/id/${courseId}`
         );
         setResourceData(responseData);
       } catch (err) {}
     };
     fetchResources();
     // setResourceData(data);
-  }, []);
+  }, [sendRequest, courseId]);
 
   if (!resourceData || !resourceData.notes || !resourceData.videos) {
     return (
@@ -77,7 +76,7 @@ function ResourcePage(props) {
             {resourceData.notes.map((note, idx) => {
               return (
                 <NotesResource
-                  key={`${topic}-note-${idx}`}
+                  key={`${courseTitle}-note-${idx}`}
                   title={note.title}
                   description={note.description}
                   notesLink={note.link}
@@ -95,7 +94,7 @@ function ResourcePage(props) {
             {resourceData.videos.map((video, idx) => {
               return (
                 <VideoResource
-                  key={`${topic}-note-${idx}`}
+                  key={`${courseTitle}-note-${idx}`}
                   title={video.title}
                   description={video.description}
                   videoLink={video.link}
@@ -109,11 +108,15 @@ function ResourcePage(props) {
         <div className={s.container}>
           <h4 className={s.section_title}>Quiz</h4>
           <br></br>
-          <span>
-            <Link
-              to={`/quiz/${encodeURIComponent(topic)}`}
-            >{`Try the ${topic} quiz!`}</Link>
-          </span>
+          {resourceData.quizzes.map((quiz, idx) => {
+            return (
+              <span key={`${courseTitle}-quiz-${idx}`}>
+                <Link
+                  to={`/quiz/${quiz.id}`}
+                >{`Try the ${quiz.title} quiz!`}</Link>
+              </span>
+            );
+          })}
         </div>
       </div>
       <div className={`row justify-content-center`}>

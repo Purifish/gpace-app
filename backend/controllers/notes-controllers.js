@@ -39,7 +39,8 @@ const mongoose = require("mongoose");
 // };
 
 const createNote = async (req, res, next) => {
-  const { courseId, title, description, link } = req.body;
+  const courseId = req.params.courseId;
+  const { title, description, link } = req.body;
   let course;
 
   /* Check that the course exists first*/

@@ -49,7 +49,8 @@ function calculateMaxScore(questions) {
 
 function Quiz(props) {
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  const topic = decodeURI(useParams().topicName);
+  // const topic = decodeURI(useParams().topicName);
+  const quizId = useParams().quizId;
   const [userScore, setUserScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const [isSelected, setIsSelected] = useState();
@@ -61,9 +62,7 @@ function Quiz(props) {
     const fetchQuestions = async () => {
       try {
         const responseData = await sendRequest(
-          `${process.env.REACT_APP_BACKEND_URL}/questions/${encodeURIComponent(
-            topic
-          )}`
+          `${process.env.REACT_APP_BACKEND_URL}/questions/${quizId}`
         );
 
         if (!responseData.questions || responseData.questions.length === 0) {
@@ -82,7 +81,7 @@ function Quiz(props) {
       } catch (err) {}
     };
     fetchQuestions();
-  }, [sendRequest, topic]);
+  }, [sendRequest, quizId]);
 
   if (maxScore === -1) {
     return (
@@ -182,7 +181,7 @@ function Quiz(props) {
         <QuizResult
           userScore={userScore}
           maxScore={maxScore}
-          quizTopic={topic}
+          quizTopic={`topic`}
         />
       )}
     </>

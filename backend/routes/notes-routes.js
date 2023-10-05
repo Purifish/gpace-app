@@ -8,7 +8,7 @@ const router = express.Router();
 // router.get("/:topic", notesControllers.getQuestionsByTopic);
 
 router.post(
-  "/",
+  "/create/:courseId",
   fileUpload.pdfUpload.single("pdf"),
   notesControllers.createNote
 );

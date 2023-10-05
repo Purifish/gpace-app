@@ -7,12 +7,13 @@ const HttpError = require("../models/http-error");
 const Course = require("../models/course");
 const Note = require("../models/note");
 const Video = require("../models/video");
-// const Note = require("../models/note");
+const Quiz = require("../models/quiz");
 
+/* Done */
 const getCourses = async (req, res, next) => {
   let courses;
   try {
-    courses = await Course.find({}, "-quizQuestions");
+    courses = await Course.find({});
   } catch (err) {
     return next(new HttpError("Error fetching courses, try again later", 500));
   }
@@ -22,6 +23,7 @@ const getCourses = async (req, res, next) => {
   });
 };
 
+/* Done */
 const createCourse = async (req, res, next) => {
   const courseTitle = req.body.courseTitle.toLowerCase();
   let existingCourse;
@@ -45,7 +47,7 @@ const createCourse = async (req, res, next) => {
     courseTitle: courseTitle,
     courseCode: req.body.courseCode || "",
     image: req.file ? req.file.path : "",
-    quizQuestions: [],
+    quizzes: [],
     notes: [],
     videos: [],
   });
@@ -66,6 +68,7 @@ const createCourse = async (req, res, next) => {
   });
 };
 
+/* Done */
 const getResourcesByCourseId = async (req, res, next) => {
   const courseId = req.params.courseId;
   const courseTitle = decodeURI(req.params.courseTitle);
@@ -90,10 +93,11 @@ const getResourcesByCourseId = async (req, res, next) => {
   }
 
   // let quizQuestions;
-  let notes, videos;
+  let notes, videos, quizzes;
   try {
     notes = await Note.find({ course: course._id });
     videos = await Video.find({ course: course._id });
+    quizzes = await Quiz.find({ course: course._id });
   } catch (err) {
     return next(new HttpError("Error retrieving data from the DB", 500));
   }
@@ -104,6 +108,9 @@ const getResourcesByCourseId = async (req, res, next) => {
     }),
     videos: videos.map((video) => {
       return video.toObject({ getters: true });
+    }),
+    quizzes: quizzes.map((quiz) => {
+      return quiz.toObject({ getters: true });
     }),
     tutors: [],
   });

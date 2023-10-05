@@ -46,18 +46,20 @@ function TopicsBrowse(props) {
   return (
     coursesList && (
       <div className={`row justify-content-center`}>
-        {coursesList.map((topicItem, idx) => {
+        {coursesList.map((courseItem, idx) => {
           return (
             <div
               key={`courseList${idx}`}
               className={`${s.card_container} col-xs-12 col-sm-6 col-md-4 col-lg-3`}
             >
               <TopicItem
-                topicName={topicItem.courseTitle}
-                imgSrc={topicItem.image}
+                topicName={courseItem.courseTitle}
+                imgSrc={courseItem.image}
                 startQuiz={() =>
                   navigate(
-                    `/resources/${encodeURIComponent(topicItem.courseTitle)}`
+                    `/resources/${encodeURIComponent(courseItem.courseTitle)}/${
+                      courseItem.id
+                    }`
                   )
                 }
               />

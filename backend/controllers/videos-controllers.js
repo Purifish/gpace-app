@@ -4,7 +4,8 @@ const Video = require("../models/video");
 const mongoose = require("mongoose");
 
 const createVideo = async (req, res, next) => {
-  const { courseId, title, description, link } = req.body;
+  const courseId = req.params.courseId;
+  const { title, description, link } = req.body;
 
   console.log(req.body);
   let course;
@@ -23,7 +24,7 @@ const createVideo = async (req, res, next) => {
   }
 
   if (!link) {
-    return next(new HttpError("Provide a linkss!", 422));
+    return next(new HttpError("Provide a link!", 422));
   }
 
   const createdVideoResource = new Video({
