@@ -1,12 +1,13 @@
 import { useParams, Link } from "react-router-dom";
 
 import s from "./style.module.css";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useHttpClient } from "../../hooks/http-hook";
 
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import NotesResource from "../NotesResource/NotesResource";
 import VideoResource from "../VideoResource/VideoResource";
+import { CurrentCourseContext } from "../../contexts/CurrentCourseContext";
 
 /* Example resource data for Data Structures & Algorithms */
 // const data = {
@@ -44,8 +45,8 @@ function ResourcePage(props) {
   const courseId = useParams().courseId;
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [resourceData, setResourceData] = useState({});
+  const { currentCourse, setCurrentCourse } = useContext(CurrentCourseContext);
 
-  // CHECKPOINT
   useEffect(() => {
     const fetchResources = async () => {
       try {
@@ -56,8 +57,12 @@ function ResourcePage(props) {
       } catch (err) {}
     };
     fetchResources();
+    setCurrentCourse({
+      courseTitle: courseTitle,
+      courseId: courseId,
+    });
     // setResourceData(data);
-  }, [sendRequest, courseId]);
+  }, [sendRequest, courseId, courseTitle, setCurrentCourse]);
 
   if (!resourceData || !resourceData.notes || !resourceData.videos) {
     return (

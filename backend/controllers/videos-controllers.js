@@ -7,7 +7,6 @@ const createVideo = async (req, res, next) => {
   const courseId = req.params.courseId;
   const { title, description, link } = req.body;
 
-  console.log(req.body);
   let course;
 
   /* Check that the course exists first*/

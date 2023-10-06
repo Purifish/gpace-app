@@ -23,13 +23,7 @@ function QuizQuestion(props) {
         {type === "radio" ? (
           <FormControlLabel
             value={idx}
-            control={
-              <Radio
-                onChange={(e) => {
-                  updateSelected(qnNumber - 1, idx, e.target.checked);
-                }}
-              />
-            }
+            control={<Radio />}
             label={`${option}`}
           />
         ) : (
@@ -41,7 +35,7 @@ function QuizQuestion(props) {
                 value={idx}
                 className={s.option_text}
                 onChange={(e) => {
-                  updateSelected(qnNumber - 1, idx, e.target.checked);
+                  updateSelected(qnNumber - 1, idx, e.target.checked, false);
                 }}
               />
             }
@@ -66,7 +60,13 @@ function QuizQuestion(props) {
         )}
         {type === "radio" ? (
           <FormControl>
-            <RadioGroup>{optionComponents}</RadioGroup>
+            <RadioGroup
+              onChange={(e) => {
+                updateSelected(qnNumber - 1, e.target.value, true, true);
+              }}
+            >
+              {optionComponents}
+            </RadioGroup>
           </FormControl>
         ) : (
           <>{optionComponents}</>
@@ -77,26 +77,3 @@ function QuizQuestion(props) {
 }
 
 export default QuizQuestion;
-
-/*
-Checkpoint:
-    Todo ->
-        IMPT: Fix isSelected update issue (FIXED)
-        Settle checkbox stuff (DONE)
-        Calculate correct score (DONE)
-        Allow radio and checkbox (DONE)
-        Remove buttons per qn (only 1 button at the end) (DONE)
-        Use mat-ui buttons (DONE)
-        Design buttons with CSS (SKIPPED)
-
-        Connect to MongoDB (DONE)
-        Populate DB with quiz data (DONE)
-        Fetch quiz data (DONE)
-        Allow an image for quiz question in frontend (DONE)
-        Modify backend to allow image (DONE)
-        Use mat-ui buttons instead of bootstrap buttons
-        
-        Authentication Matters
-
-
-*/

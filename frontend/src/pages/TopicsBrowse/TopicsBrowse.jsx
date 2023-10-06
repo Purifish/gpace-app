@@ -6,7 +6,8 @@ import { useNavigate } from "react-router-dom";
 // import logoImg from "../../assets/images/logo.png";
 // import mathImg from "../../assets/images/math.png";
 import { useHttpClient } from "../../hooks/http-hook";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { CurrentCourseContext } from "../../contexts/CurrentCourseContext";
 
 // const topicList = [
 //   {
@@ -30,6 +31,7 @@ function TopicsBrowse(props) {
   const navigate = useNavigate();
   const { isLoading, error, sendRequest, clearError } = useHttpClient();
   const [coursesList, setCoursesList] = useState();
+  const { currentCourse, setCurrentCourse } = useContext(CurrentCourseContext);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -41,7 +43,11 @@ function TopicsBrowse(props) {
       } catch (err) {}
     };
     fetchCourses();
-  }, [sendRequest]);
+    setCurrentCourse({
+      courseTitle: "",
+      courseId: "",
+    });
+  }, [sendRequest, setCurrentCourse]);
 
   return (
     coursesList && (

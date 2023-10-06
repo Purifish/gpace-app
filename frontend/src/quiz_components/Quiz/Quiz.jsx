@@ -54,7 +54,7 @@ function Quiz(props) {
   const [userScore, setUserScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const [isSelected, setIsSelected] = useState();
-  const [quizData, setQuizData] = useState({});
+  const [quizData, setQuizData] = useState([]);
   const [maxScore, setMaxScore] = useState(-1);
 
   useEffect(() => {
@@ -72,6 +72,9 @@ function Quiz(props) {
 
         setQuizData(responseData);
         let temp = [];
+        // for (let i = 0; i < responseData.questions.length; i++) {
+        //   temp[i] = Array(responseData.questions[i].options.length).fill(false);
+        // }
         for (let question of responseData.questions) {
           temp.push(Array(question.options.length).fill(false));
         }
@@ -91,12 +94,14 @@ function Quiz(props) {
     );
   }
 
-  const updateSelected = (qnIndex, optionIndex, newValue) => {
+  const updateSelected = (qnIndex, optionIndex, newValue, isRadio) => {
     // Create a shallow copy of the grid
     const temp = [...isSelected];
 
     // Create a shallow copy of the row
-    const newRow = [...temp[qnIndex]];
+    const newRow = isRadio
+      ? Array(temp[qnIndex].length).fill(false)
+      : [...temp[qnIndex]];
 
     // If new value equals old value, ignore
     if (newRow[optionIndex] === newValue) {
