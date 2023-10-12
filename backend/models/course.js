@@ -2,7 +2,11 @@ const mongoose = require("mongoose");
 const uniqueValidator = require("mongoose-unique-validator");
 
 const courseSchema = new mongoose.Schema({
-  courseTitle: { type: String, required: true } /* e.g. Geography */,
+  courseTitle: {
+    type: String,
+    required: true,
+    unique: true,
+  } /* e.g. Geography */,
   courseCode: { type: String, required: false } /* e.g. CX3005 */,
   image: { type: String, required: false } /* file path */,
   // quizQuestions: [

@@ -10,6 +10,7 @@ const questionsRoutes = require("./routes/questions-routes");
 const coursesRoutes = require("./routes/courses-routes");
 const notesRoutes = require("./routes/notes-routes");
 const videosRoutes = require("./routes/videos-routes");
+const usersRoutes = require("./routes/users-routes");
 const HttpError = require("./models/http-error");
 
 const app = express();
@@ -40,6 +41,8 @@ app.use("/api/courses", coursesRoutes);
 app.use("/api/notes", notesRoutes);
 
 app.use("/api/video", videosRoutes);
+
+app.use("api/users", usersRoutes);
 
 /*
   "default" path
