@@ -4,6 +4,7 @@ import ReactDOM from "react-dom/client";
 import App from "./App";
 import TopicsBrowse from "./pages/TopicsBrowse/TopicsBrowse";
 import Quiz from "./quiz_components/Quiz/Quiz";
+import ResourcePage from "./resource_components/ResourcePage/ResourcePage";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -13,13 +14,12 @@ root.render(
       <Routes>
         <Route path="/" element={<App />}>
           <Route path="/" element={<TopicsBrowse />} />
-          <Route path="/quiz/:topicName" element={<Quiz />} />
-          {/* <Route
-            path="/quiz/geography"
-            element={<Quiz topicName="geography" />}
+          <Route path="/quiz/:quizId" element={<Quiz />} />
+          <Route
+            path="/resources/:courseTitle/:courseId"
+            element={<ResourcePage />}
           />
-          <Route path="/quiz/math" element={<Quiz topicName="math" />} />
-          <Route path="/quiz/cpp" element={<Quiz topicName="cpp" />} /> */}
+
           {/*<Route path="*" element={<PageNotFound />}/> */}
         </Route>
       </Routes>

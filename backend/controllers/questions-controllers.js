@@ -3,12 +3,13 @@ const Quiz = require("../models/quiz");
 const Question = require("../models/question");
 const mongoose = require("mongoose");
 
+/* Done */
 const updateQuestion = async (req, res, next) => {
   const { title, options, solution, score, type } = req.body;
 
   let question;
   try {
-    question = await Question.findById(req.params.qid);
+    question = await Question.findById(req.params.questionId);
   } catch (err) {
     return next(
       new HttpError("Something went wrong! could not update question.", 500)
@@ -24,6 +25,7 @@ const updateQuestion = async (req, res, next) => {
   if (solution) question.solution = JSON.parse(solution);
   if (score) question.score = score;
   if (type) question.type = type;
+  if (req.file) question.image = req.file.path;
 
   try {
     await question.save();
@@ -38,20 +40,24 @@ const updateQuestion = async (req, res, next) => {
   });
 };
 
+/* Done */
 const createQuestion = async (req, res, next) => {
-  const { topic, title, options, solution, score, type } = req.body;
+  const quizId = req.params.quizId;
+  const { title, options, solution, score, type } = req.body;
   let quiz;
 
   /* Check that the quiz exists first*/
   try {
-    quiz = await Quiz.findOne({ topic: topic });
+    quiz = await Quiz.findById(quizId);
+    // console.log(req.file);
+    // console.log(req.file.path);
   } catch (err) {
     const error = new HttpError("Failed to add question! Try again.", 500);
     return next(error);
   }
 
   if (!quiz) {
-    const error = new HttpError("Invalid topic", 404);
+    const error = new HttpError("Invalid quiz ID!", 404);
     return next(error);
   }
 
@@ -60,9 +66,9 @@ const createQuestion = async (req, res, next) => {
     options: JSON.parse(options),
     solution: JSON.parse(solution),
     score: score,
-    type: type,
+    type: type, // TODO: Add validation checks
     image: req.file ? req.file.path : "",
-    topic: quiz._id,
+    quiz: quizId,
   });
 
   try {
@@ -86,32 +92,33 @@ const createQuestion = async (req, res, next) => {
   });
 };
 
-const getQuestionsByTopic = async (req, res, next) => {
-  const topic = req.params.topic;
+/* Done */
+const getQuestionsByQuizId = async (req, res, next) => {
+  const quizId = req.params.quizId;
+  // const topic = decodeURI(req.params.topic);
 
   /* Check that the quiz exists first*/
   let quiz;
   try {
-    quiz = await Quiz.findOne({ topic: topic });
+    quiz = await Quiz.findById(quizId);
   } catch (err) {
     const error = new HttpError("Failed to access questions! Try again.", 500);
     return next(error);
   }
 
   if (!quiz) {
-    const error = new HttpError("Invalid topic", 404);
+    const error = new HttpError("Invalid quiz ID!", 404);
     return next(error);
   }
 
   let quizQuestions;
   try {
-    quizQuestions = await Question.find({ topic: quiz._id });
+    quizQuestions = await Question.find({ quiz: quiz._id });
   } catch (err) {
     return next(new HttpError("Error retrieving questions from the DB", 500));
   }
 
   if (quizQuestions.length === 0) {
-    // next(new HttpError("This quiz has no questions!", 404));
     res.json({
       questions: [],
     });
@@ -125,5 +132,5 @@ const getQuestionsByTopic = async (req, res, next) => {
 };
 
 exports.createQuestion = createQuestion;
-exports.getQuestionsByTopic = getQuestionsByTopic;
+exports.getQuestionsByQuizId = getQuestionsByQuizId;
 exports.updateQuestion = updateQuestion;

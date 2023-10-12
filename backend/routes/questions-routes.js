@@ -5,17 +5,17 @@ const fileUpload = require("../middleware/file-upload");
 
 const router = express.Router();
 
-router.get("/:topic", questionControllers.getQuestionsByTopic);
+router.get("/:quizId", questionControllers.getQuestionsByQuizId);
 
 router.post(
-  "/",
-  fileUpload.single("image"),
+  "/create/:quizId",
+  fileUpload.imageUpload.single("image"),
   questionControllers.createQuestion
 );
 
 router.patch(
-  "/:qid",
-  fileUpload.single("image"),
+  "/:questionId",
+  fileUpload.imageUpload.single("image"),
   questionControllers.updateQuestion
 );
 

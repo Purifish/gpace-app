@@ -3,7 +3,7 @@ import logoImg from "../../assets/images/dolphins.jpg";
 import { useNavigate } from "react-router-dom";
 
 function Logo(props) {
-  const title = "Quiz Whiz";
+  const title = "GPAce";
   const image = logoImg;
   const navigate = useNavigate();
 

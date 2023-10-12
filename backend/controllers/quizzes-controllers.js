@@ -3,28 +3,34 @@
 // const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
-
 const Quiz = require("../models/quiz");
+const Course = require("../models/course");
 
-const getTopics = async (req, res, next) => {
-  let topics;
+/* Done */
+const getQuizzesByCourseId = async (req, res, next) => {
+  const courseId = req.params.courseId;
+  let quizzes;
   try {
-    topics = await Quiz.find({}, "-questions");
+    quizzes = await Quiz.find({ course: courseId });
   } catch (err) {
-    return next(new HttpError("Error fetching topics, try again later", 500));
+    return next(new HttpError("Error fetching quizzes, try again later", 500));
   }
 
   res.json({
-    topics: topics.map((topic) => topic.toObject({ getters: true })),
+    quizzes: quizzes.map((quiz) => quiz.toObject({ getters: true })),
   });
 };
 
+/* Done */
 const createQuiz = async (req, res, next) => {
-  const topic = req.body.topic.toLowerCase();
-  let existingTopic;
+  const courseId = req.params.courseId;
+  const title = req.body.title.toLowerCase();
+  let existingTitle;
+  let course;
 
   try {
-    existingTopic = await Quiz.findOne({ topic: topic });
+    course = await Course.findById(courseId);
+    existingTitle = await Quiz.findOne({ title: title, course: courseId });
   } catch (err) {
     console.log(err);
     return next(
@@ -32,13 +38,17 @@ const createQuiz = async (req, res, next) => {
     );
   }
 
-  if (existingTopic) {
-    return next(new HttpError("There is already a quiz with this topic", 422));
+  if (!course) {
+    return next(new HttpError("Invalid course ID!", 404));
+  }
+
+  if (existingTitle) {
+    return next(new HttpError("There is already a quiz with this title", 422));
   }
 
   const newQuiz = new Quiz({
-    topic: topic,
-    image: req.file.path,
+    title: title,
+    course: courseId,
     questions: [],
   });
 
@@ -56,4 +66,4 @@ const createQuiz = async (req, res, next) => {
 };
 
 exports.createQuiz = createQuiz;
-exports.getTopics = getTopics;
+exports.getQuizzesByCourseId = getQuizzesByCourseId;

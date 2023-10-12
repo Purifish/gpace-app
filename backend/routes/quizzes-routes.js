@@ -7,11 +7,11 @@ const fileUpload = require("../middleware/file-upload");
 
 const router = express.Router();
 
-router.get("/", quizzesControllers.getTopics);
+router.get("/:courseId", quizzesControllers.getQuizzesByCourseId);
 
 router.post(
-  "/createquiz",
-  fileUpload.single("image"),
+  "/create/:courseId",
+  fileUpload.imageUpload.any(),
   quizzesControllers.createQuiz
 );
 

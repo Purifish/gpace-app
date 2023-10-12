@@ -1,15 +1,20 @@
 import { Button } from "@mui/material";
 import s from "./style.module.css";
+import logoImg from "../../assets/images/logo.png";
 
 function TopicItem(props) {
   const { topicName, imgSrc, startQuiz } = props;
   const capitalizedTopic =
     topicName.charAt(0).toUpperCase() + topicName.slice(1);
 
+  let imagePath;
+
+  imagePath = imgSrc ? `${process.env.REACT_APP_ASSET_URL}/${imgSrc}` : logoImg;
+  // console.log(imgSrc);
   return (
     <div className={`card ${s.container}`}>
       <img
-        src={`${process.env.REACT_APP_ASSET_URL}/${imgSrc}`}
+        src={imagePath}
         className={`card-img-top ${s.img}`}
         alt={topicName}
       />
@@ -20,7 +25,7 @@ function TopicItem(props) {
           bulk of the card's content.
         </p>
         <Button variant="outlined" onClick={startQuiz}>
-          Start
+          Explore
         </Button>
       </div>
     </div>
