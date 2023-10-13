@@ -42,7 +42,7 @@ app.use("/api/notes", notesRoutes);
 
 app.use("/api/video", videosRoutes);
 
-app.use("api/users", usersRoutes);
+app.use("/api/users", usersRoutes);
 
 /*
   "default" path
