@@ -1,12 +1,46 @@
 .close_modal {
   position: absolute;
-  top: 1.2rem;
+  top: 0;
   right: 2rem;
-  font-size: 5rem;
+  font-size: 3rem;
   color: #333;
   cursor: pointer;
   border: none;
   background: none;
+}
+
+.title_container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+.input_container {
+  margin-top: 25px;
+  display: flex;
+  justify-content: center;
+}
+
+.form_input {
+  width: 90%;
+  border-radius: 5px;
+}
+
+.remark_container {
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+}
+
+.anchor {
+  cursor: pointer;
+}
+
+.button_container {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
 }
 
 /* -------------------------- */
@@ -20,10 +54,9 @@
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 70%;
 
   background-color: white;
-  padding: 6rem;
+  padding: 1rem;
   border-radius: 5px;
   box-shadow: 0 3rem 5rem rgba(0, 0, 0, 0.3);
   z-index: 10;

@@ -11,6 +11,8 @@ import { useContext, useState } from "react";
 function App() {
   const initialCurrentCourse = useContext(CurrentCourseContext);
   const [currentCourse, setCurrentCourse] = useState(initialCurrentCourse);
+
+  // Set to true to display login modal
   const [authMode, setAuthMode] = useState(false);
 
   function openModal() {
