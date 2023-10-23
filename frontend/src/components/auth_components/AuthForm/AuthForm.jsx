@@ -21,6 +21,7 @@ function AuthForm(props) {
   async function authSubmitHandler(event) {
     event.preventDefault();
     console.log("TEST");
+    console.log(formState);
     if (isLoginMode) {
       try {
         const responseData = await sendRequest(
@@ -35,9 +36,30 @@ function AuthForm(props) {
           }
         );
         auth.login(responseData.userId, responseData.token);
-      } catch (err) {}
+        closeModal();
+        setLoginMode(false);
+      } catch (err) {
+        console.log("Login Error");
+      }
     } else {
-      // CHECKPOINT
+      try {
+        const formData = new FormData();
+        formData.append("email", formState.email);
+        formData.append("username", formState.username);
+        formData.append("password", formState.password);
+        formData.append("image", formState.image);
+
+        const responseData = await sendRequest(
+          `${process.env.REACT_APP_BACKEND_URL}/users/signup`,
+          "POST",
+          formData
+        );
+        auth.login(responseData.userId, responseData.token);
+        closeModal();
+        setLoginMode(false);
+      } catch (err) {
+        console.log("Signup Error");
+      }
     }
   }
 
@@ -49,7 +71,13 @@ function AuthForm(props) {
         } col-sm-12 col-md-6 col-lg-4`}
       >
         {/* Exit Button */}
-        <button class={`${s.close_modal}`} onClick={closeModal}>
+        <button
+          class={`${s.close_modal}`}
+          onClick={() => {
+            closeModal();
+            setLoginMode(false);
+          }}
+        >
           &times;
         </button>
 
@@ -64,6 +92,15 @@ function AuthForm(props) {
               type="text"
               placeholder="Email"
               className={`${s.form_input}`}
+              value={formState.email}
+              onChange={(event) => {
+                setFormState((prev) => {
+                  return {
+                    ...prev,
+                    email: event.target.value,
+                  };
+                });
+              }}
             />
           </div>
           {!isLoginMode && (
@@ -73,6 +110,15 @@ function AuthForm(props) {
                 type="text"
                 placeholder="Username"
                 className={`${s.form_input}`}
+                value={formState.username}
+                onChange={(event) => {
+                  setFormState((prev) => {
+                    return {
+                      ...prev,
+                      username: event.target.value,
+                    };
+                  });
+                }}
               />
             </div>
           )}
@@ -82,6 +128,15 @@ function AuthForm(props) {
               type="password"
               placeholder="Password"
               className={`${s.form_input}`}
+              value={formState.password}
+              onChange={(event) => {
+                setFormState((prev) => {
+                  return {
+                    ...prev,
+                    password: event.target.value,
+                  };
+                });
+              }}
             />
           </div>
 

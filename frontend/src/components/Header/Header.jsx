@@ -1,8 +1,11 @@
 import s from "./style.module.css";
 
 import Logo from "../Logo/Logo";
+import { AuthContext } from "../../contexts/auth-context";
+import { useContext } from "react";
 
 function Header(props) {
+  const auth = useContext(AuthContext);
   const { openModal } = props;
   return (
     <div className={`row ${s.container}`}>
@@ -14,8 +17,11 @@ function Header(props) {
       <div
         className={`col-xs-6 col-sm-4 col-md-3 col-lg-2 ${s.auth_container}`}
       >
-        <h2 className={`${s.auth}`} onClick={openModal}>
-          Sign Up
+        <h2
+          className={`${s.auth}`}
+          onClick={auth.isLoggedIn ? auth.logout : openModal}
+        >
+          {auth.isLoggedIn ? "Log Out" : "Sign Up"}
         </h2>
       </div>
     </div>
