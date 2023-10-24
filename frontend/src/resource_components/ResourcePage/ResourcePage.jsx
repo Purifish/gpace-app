@@ -9,37 +9,6 @@ import NotesResource from "../NotesResource/NotesResource";
 import VideoResource from "../VideoResource/VideoResource";
 import { CurrentCourseContext } from "../../contexts/CurrentCourseContext";
 
-/* Example resource data for Data Structures & Algorithms */
-// const data = {
-//   notes: [
-//     {
-//       title: "Summary Notes",
-//       description: "Brief notes covering all topics",
-//       link: "https://www.youtube.com/",
-//       file: "",
-//     },
-//     {
-//       title: "First Half Notes",
-//       description: "Comprehensive notes covering the first half",
-//       link: "https://www.youtube.com/",
-//       file: "",
-//     },
-//   ],
-//   videos: [
-//     {
-//       title: "Quick Sort",
-//       description: "Quick sort tutorial",
-//       link: "https://www.google.com/",
-//     },
-//     {
-//       title: "Heap Sort",
-//       description: "Heap sort tutorial",
-//       link: "https://www.youtube.com/",
-//     },
-//   ],
-//   tutors: [],
-// };
-
 function ResourcePage(props) {
   const courseTitle = decodeURI(useParams().courseTitle);
   const courseId = useParams().courseId;
@@ -50,18 +19,20 @@ function ResourcePage(props) {
   useEffect(() => {
     const fetchResources = async () => {
       try {
+        // get relevant data for the current course
         const responseData = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/courses/id/${courseId}`
         );
         setResourceData(responseData);
-      } catch (err) {}
+      } catch (err) {
+        // TODO: handle error when fetching from backend
+      }
     };
     fetchResources();
     setCurrentCourse({
       courseTitle: courseTitle,
       courseId: courseId,
     });
-    // setResourceData(data);
   }, [sendRequest, courseId, courseTitle, setCurrentCourse]);
 
   if (!resourceData || !resourceData.notes || !resourceData.videos) {
@@ -75,7 +46,7 @@ function ResourcePage(props) {
   return (
     <>
       <div className={`row justify-content-center`}>
-        <div className={s.container}>
+        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
           <h4 className={s.section_title}>Notes</h4>
           <div>
             {resourceData.notes.map((note, idx) => {
@@ -93,7 +64,7 @@ function ResourcePage(props) {
         </div>
       </div>
       <div className={`row justify-content-center`}>
-        <div className={s.container}>
+        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
           <h4 className={s.section_title}>Videos</h4>
           <div>
             {resourceData.videos.map((video, idx) => {
@@ -110,7 +81,7 @@ function ResourcePage(props) {
         </div>
       </div>
       <div className={`row justify-content-center`}>
-        <div className={s.container}>
+        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
           <h4 className={s.section_title}>Quiz</h4>
           <br></br>
           {resourceData.quizzes.map((quiz, idx) => {
@@ -125,7 +96,7 @@ function ResourcePage(props) {
         </div>
       </div>
       <div className={`row justify-content-center`}>
-        <div className={s.container}>
+        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
           <h4 className={s.section_title}>Tutors</h4>
         </div>
       </div>

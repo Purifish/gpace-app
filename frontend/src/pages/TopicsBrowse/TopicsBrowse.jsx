@@ -56,7 +56,7 @@ function TopicsBrowse(props) {
           return (
             <div
               key={`courseList${idx}`}
-              className={`${s.card_container} col-xs-12 col-sm-6 col-md-4 col-lg-3`}
+              className={`${s.card_container} col-sm-12 col-md-4 col-lg-3`}
             >
               <TopicItem
                 topicName={courseItem.courseTitle}

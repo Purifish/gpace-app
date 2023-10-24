@@ -3,6 +3,45 @@ const Course = require("../models/course");
 const Video = require("../models/video");
 const mongoose = require("mongoose");
 
+const updateVideo = async (req, res, next) => {
+  const { title, description, link } = req.body;
+
+  let video;
+  try {
+    video = await Video.findById(req.params.videoId);
+  } catch (err) {
+    return next(
+      new HttpError(
+        "Something went wrong! could not update video resource.",
+        500
+      )
+    );
+  }
+
+  if (!video) {
+    return next(new HttpError("Invalid video ID", 500));
+  }
+
+  if (title) video.title = title;
+  if (description) video.description = description;
+  if (link) video.link = link;
+
+  try {
+    await video.save();
+  } catch (err) {
+    return next(
+      new HttpError(
+        "Something went wrong, could not update video resource.",
+        500
+      )
+    );
+  }
+
+  res.json({
+    video: video.toObject({ getters: true }),
+  });
+};
+
 const createVideo = async (req, res, next) => {
   const courseId = req.params.courseId;
   const { title, description, link } = req.body;
@@ -55,3 +94,4 @@ const createVideo = async (req, res, next) => {
 };
 
 exports.createVideo = createVideo;
+exports.updateVideo = updateVideo;

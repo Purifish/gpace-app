@@ -5,29 +5,32 @@ const jwt = require("jsonwebtoken");
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
 
-const getUsers = async (req, res, next) => {
-  let users;
+// const getUsers = async (req, res, next) => {
+//   let users;
 
-  try {
-    /* Include all properites except "password" */
-    users = await User.find({}, "-password");
-  } catch (err) {
-    return next(new HttpError("Error fetching users, try again later", 500));
-  }
+//   try {
+//     /* Include all properites except "password" */
+//     users = await User.find({}, "-password");
+//   } catch (err) {
+//     return next(new HttpError("Error fetching users, try again later", 500));
+//   }
 
-  res.json({
-    users: users.map((user) => user.toObject({ getters: true })),
-  });
-};
+//   res.json({
+//     users: users.map((user) => user.toObject({ getters: true })),
+//   });
+// };
 
+/* Done */
 const signup = async (req, res, next) => {
-  const errors = validationResult(req); // check validation result
-  if (!errors.isEmpty()) {
-    console.log(errors);
+  /* Check validation result */
+  const validationErrors = validationResult(req);
+  if (!validationErrors.isEmpty()) {
+    console.log(validationErrors);
     return next(new HttpError("Invalid input detected.", 422));
   }
 
   const { name, email, password } = req.body;
+  console.log(email);
 
   let existingUser;
 
@@ -55,9 +58,11 @@ const signup = async (req, res, next) => {
   const newUser = new User({
     name: name,
     email: email,
-    image: req.file.path,
+    image: req.file ? req.file.path : "",
     password: hashedPassword,
-    places: [],
+    privilege: "user",
+    notes: [],
+    videos: [],
   });
 
   try {
@@ -70,7 +75,11 @@ const signup = async (req, res, next) => {
   let token;
   try {
     token = jwt.sign(
-      { userId: newUser.id, email: newUser.email },
+      {
+        userId: newUser.id,
+        email: newUser.email,
+        privilege: newUser.privilege,
+      },
       process.env.JWT_KEY, // private key
       { expiresIn: "1h" } // expires after 1 hour
     );
@@ -83,6 +92,7 @@ const signup = async (req, res, next) => {
     message: "Successfully signed up",
     userId: newUser.id,
     email: newUser.email,
+    privilege: newUser.privilege,
     token: token,
   });
 };
@@ -91,7 +101,7 @@ const login = async (req, res, next) => {
   const { email, password } = req.body;
 
   let existingUser;
-
+  console.log(email);
   try {
     existingUser = await User.findOne({ email: email });
   } catch (err) {
@@ -101,24 +111,29 @@ const login = async (req, res, next) => {
   }
 
   if (!existingUser) {
-    return next(new HttpError("Wrong username or password!", 401));
+    return next(new HttpError("User does not exist!", 401));
   }
 
   let isValidPassword = false;
   try {
+    // compare the password with its hash
     isValidPassword = await bcrypt.compare(password, existingUser.password);
   } catch (err) {
     return next(new HttpError("Login failed, please try again later", 500));
   }
 
   if (!isValidPassword) {
-    return next(new HttpError("Wrong username or password!", 401));
+    return next(new HttpError("Wrong password!", 401));
   }
 
   let token;
   try {
     token = jwt.sign(
-      { userId: existingUser.id, email: existingUser.email },
+      {
+        userId: existingUser.id,
+        email: existingUser.email,
+        privilege: existingUser.privilege,
+      },
       process.env.JWT_KEY, // private key, must be same as signup token
       { expiresIn: "1h" } // expires after 1 hour
     );
@@ -130,10 +145,11 @@ const login = async (req, res, next) => {
   res.json({
     userId: existingUser.id,
     email: existingUser.email,
+    privilege: existingUser.privilege,
     token: token,
   });
 };
 
-exports.getUsers = getUsers;
+// exports.getUsers = getUsers;
 exports.signup = signup;
 exports.login = login;

@@ -4,18 +4,16 @@ const videoControllers = require("../controllers/videos-controllers");
 const fileUpload = require("../middleware/file-upload");
 const router = express.Router();
 
-// router.get("/:topic", notesControllers.getQuestionsByTopic);
-
 router.post(
   "/create/:courseId",
   fileUpload.pdfUpload.any(),
   videoControllers.createVideo
 );
 
-// router.patch(
-//   "/:qid",
-//   fileUpload.single("image"),
-//   notesControllers.updateQuestion
-// );
+router.post(
+  "/update/:videoId",
+  fileUpload.pdfUpload.any(),
+  videoControllers.updateVideo
+);
 
 module.exports = router;

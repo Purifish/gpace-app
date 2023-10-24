@@ -46,7 +46,5 @@ const pdfUpload = multer({
   },
 });
 
-// module.exports = fileUpload;
-
 exports.imageUpload = imageUpload;
 exports.pdfUpload = pdfUpload;

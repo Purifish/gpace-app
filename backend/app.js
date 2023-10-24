@@ -42,7 +42,7 @@ app.use("/api/notes", notesRoutes);
 
 app.use("/api/video", videosRoutes);
 
-app.use("api/users", usersRoutes);
+app.use("/api/users", usersRoutes);
 
 /*
   "default" path
@@ -59,7 +59,7 @@ app.use((req, res, next) => {
 */
 app.use((err, req, res, next) => {
   if (req.file) {
-    console.log("Error occurred, deleting image");
+    console.log("Error occurred, deleting file");
     fs.unlink(req.file.path, (err) => {
       console.log(err);
     });

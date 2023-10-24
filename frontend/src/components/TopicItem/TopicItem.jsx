@@ -4,8 +4,12 @@ import logoImg from "../../assets/images/logo.png";
 
 function TopicItem(props) {
   const { topicName, imgSrc, startQuiz } = props;
-  const capitalizedTopic =
-    topicName.charAt(0).toUpperCase() + topicName.slice(1);
+  const capitalizedTopic = topicName
+    .split(" ")
+    .map((word) => {
+      return word[0].toUpperCase() + word.substr(1);
+    })
+    .join(" ");
 
   let imagePath;
 
