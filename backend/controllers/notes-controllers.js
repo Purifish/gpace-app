@@ -3,40 +3,53 @@ const Course = require("../models/course");
 const Note = require("../models/note");
 const mongoose = require("mongoose");
 
-// const updateNote = async (req, res, next) => {
-//   const { title, options, solution, score, type } = req.body;
+/*
+  TODO: allow file/link remove (and ensure at least one file/link exists)
+*/
+const updateNote = async (req, res, next) => {
+  const { title, description, link } = req.body;
 
-//   let question;
-//   try {
-//     question = await Note.findById(req.params.qid);
-//   } catch (err) {
-//     return next(
-//       new HttpError("Something went wrong! could not update question.", 500)
-//     );
-//   }
+  let note;
+  try {
+    note = await Note.findById(req.params.noteId);
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong! could not update note.", 500)
+    );
+  }
 
-//   if (!question) {
-//     return next(new HttpError("Invalid question ID", 500));
-//   }
+  if (!note) {
+    return next(new HttpError("Invalid note ID", 500));
+  }
 
-//   if (title) question.title = title;
-//   if (options) question.options = JSON.parse(options);
-//   if (solution) question.solution = JSON.parse(solution);
-//   if (score) question.score = score;
-//   if (type) question.type = type;
+  if (title) note.title = title;
+  if (description) note.description = description;
+  if (link) note.link = link;
 
-//   try {
-//     await question.save();
-//   } catch (err) {
-//     return next(
-//       new HttpError("Something went wrong, could not update question.", 500)
-//     );
-//   }
+  let oldFile;
+  if (req.file && req.file.path) {
+    oldFile = note.file;
+    note.file = file;
+  }
 
-//   res.json({
-//     question: question.toObject({ getters: true }),
-//   });
-// };
+  try {
+    await note.save();
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong, could not update note.", 500)
+    );
+  }
+
+  if (oldFile) {
+    fs.unlink(oldFile, (err) => {
+      console.log(err);
+    });
+  }
+
+  res.json({
+    note: note.toObject({ getters: true }),
+  });
+};
 
 const createNote = async (req, res, next) => {
   const courseId = req.params.courseId;
@@ -129,4 +142,4 @@ const createNote = async (req, res, next) => {
 
 exports.createNote = createNote;
 // exports.getNotesByCourse = getNotesByCourse;
-// exports.updateNote = updateNote;
+exports.updateNote = updateNote;

@@ -6,6 +6,41 @@ const HttpError = require("../models/http-error");
 const Quiz = require("../models/quiz");
 const Course = require("../models/course");
 
+const updateQuiz = async (req, res, next) => {
+  const { title } = req.body;
+
+  if (!title) {
+    return next(new HttpError("Title cannot be empty!", 500));
+  }
+
+  let quiz;
+  try {
+    quiz = await Quiz.findById(req.params.quizId);
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong! could not update quiz.", 500)
+    );
+  }
+
+  if (!quiz) {
+    return next(new HttpError("Invalid quiz ID", 500));
+  }
+
+  quiz.title = title;
+
+  try {
+    await quiz.save();
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong, could not update quiz.", 500)
+    );
+  }
+
+  res.json({
+    quiz: quiz.toObject({ getters: true }),
+  });
+};
+
 /* Done */
 const getQuizzesByCourseId = async (req, res, next) => {
   const courseId = req.params.courseId;
@@ -67,3 +102,4 @@ const createQuiz = async (req, res, next) => {
 
 exports.createQuiz = createQuiz;
 exports.getQuizzesByCourseId = getQuizzesByCourseId;
+exports.updateQuiz = updateQuiz;

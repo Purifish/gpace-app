@@ -14,9 +14,7 @@ function Header(props) {
         <Logo />
       </div>
       <div className="col-xs-0 col-sm-4 col-md-5 col-lg-6"></div>
-      <div
-        className={`col-xs-6 col-sm-4 col-md-3 col-lg-2 ${s.auth_container}`}
-      >
+      <div className={`col-xs-6 col-sm-4 col-md-3 col-lg-2`}>
         <h2
           className={`${s.auth}`}
           onClick={auth.isLoggedIn ? auth.logout : openModal}

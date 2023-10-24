@@ -13,6 +13,12 @@ router.post(
   notesControllers.createNote
 );
 
+router.post(
+  "/update/:noteId",
+  fileUpload.pdfUpload.single("pdf"),
+  notesControllers.updateNote
+);
+
 // router.patch(
 //   "/:qid",
 //   fileUpload.single("image"),

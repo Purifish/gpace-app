@@ -15,6 +15,12 @@ router.post(
   quizzesControllers.createQuiz
 );
 
+router.post(
+  "/update/:quizId",
+  fileUpload.imageUpload.any(),
+  quizzesControllers.updateQuiz
+);
+
 // router.post(
 //   "/uploadtest",
 //   fileUpload.single("image"),

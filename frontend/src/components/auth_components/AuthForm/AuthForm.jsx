@@ -20,8 +20,8 @@ function AuthForm(props) {
 
   async function authSubmitHandler(event) {
     event.preventDefault();
-    console.log("TEST");
-    console.log(formState);
+    // console.log("TEST");
+    // console.log(formState);
     if (isLoginMode) {
       try {
         const responseData = await sendRequest(
