@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 
 import { Button } from "@mui/material";
 
@@ -18,7 +18,12 @@ function AuthForm(props) {
     image: null,
   });
 
+  useEffect(() => {
+    clearError();
+  }, [clearError]);
+
   async function authSubmitHandler(event) {
+    clearError();
     event.preventDefault();
     // console.log("TEST");
     // console.log(formState);
@@ -39,7 +44,9 @@ function AuthForm(props) {
         closeModal();
         setLoginMode(false);
       } catch (err) {
-        console.log("Login Error");
+        // if (error && error.code >= 400 && error.code < 500) {
+        // }
+        // console.log(error.code);
       }
     } else {
       try {
@@ -139,6 +146,12 @@ function AuthForm(props) {
               }}
             />
           </div>
+
+          {error && (
+            <div className={`${s.error_container}`}>
+              <p>{error.message}</p>
+            </div>
+          )}
 
           <div className={`${s.remark_container}`}>
             <p>

@@ -27,14 +27,21 @@ export const useHttpClient = () => {
         );
 
         if (!response.ok) {
+          setError({
+            code: response.status,
+          });
           throw new Error(responseData.message);
         }
 
         setIsLoading(false);
         return responseData;
       } catch (err) {
-        console.log(err.message);
-        setError(err.message);
+        setError((prev) => {
+          return {
+            ...prev,
+            message: err.message,
+          };
+        });
         setIsLoading(false);
         throw err;
       }

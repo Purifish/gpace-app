@@ -1,6 +1,6 @@
 import s from "./style.module.css";
 
-import { Outlet } from "react-router-dom";
+import { Outlet, useNavigate } from "react-router-dom";
 import { useCallback, useContext, useState, useEffect } from "react";
 
 import AuthForm from "./components/auth_components/AuthForm/AuthForm";
@@ -20,6 +20,8 @@ function App() {
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(false);
   const [tokenExpiry, setTokenExpiry] = useState();
+
+  const navigate = useNavigate();
 
   function openModal() {
     setAuthMode(true);
@@ -54,7 +56,8 @@ function App() {
     setTokenExpiry(null);
     setUserId(null);
     localStorage.removeItem("userData");
-  }, []);
+    navigate("/"); // redirect to homepage
+  }, [navigate]);
 
   /* Auto logout */
   useEffect(() => {

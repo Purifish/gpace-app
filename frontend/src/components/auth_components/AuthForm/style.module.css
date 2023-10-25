@@ -27,6 +27,13 @@
   border-radius: 5px;
 }
 
+.error_container {
+  font-size: 14px;
+  display: flex;
+  justify-content: center;
+  color: red;
+}
+
 .remark_container {
   font-size: 14px;
   display: flex;
