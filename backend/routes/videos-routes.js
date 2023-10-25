@@ -10,10 +10,16 @@ router.post(
   videoControllers.createVideo
 );
 
-router.post(
+router.patch(
   "/update/:videoId",
   fileUpload.pdfUpload.any(),
   videoControllers.updateVideo
+);
+
+router.delete(
+  "/delete/:videoId",
+  fileUpload.pdfUpload.any(),
+  videoControllers.deleteVideo
 );
 
 module.exports = router;

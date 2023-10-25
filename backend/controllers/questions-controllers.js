@@ -2,6 +2,64 @@ const HttpError = require("../models/http-error");
 const Quiz = require("../models/quiz");
 const Question = require("../models/question");
 const mongoose = require("mongoose");
+const fs = require("fs");
+
+const deleteQuestion = async (req, res, next) => {
+  const questionId = req.params.questionId;
+  let question;
+
+  try {
+    /* 
+      populates the "quiz" property with the actual quiz documents (not just ID)
+      Only works if the schemas are related with "ref"
+    */
+    question = await Question.findById(questionId).populate("quiz");
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong when accessing the DB", 500)
+    );
+  }
+
+  if (!question) {
+    return next(new HttpError("Invalid question ID", 404));
+  }
+
+  // TODO: Add authorization similar to below
+
+  // if (note.creator.id !== req.userData.userId) {
+  //   return next(
+  //     new HttpError("Error: User is not authorized to edit this place!", 401)
+  //   );
+  // }
+
+  const imagePath = question.image;
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await Question.findByIdAndRemove(questionId, { session: sess });
+
+    /* Remove the question from questions list of the quiz */
+    question.quiz.questions.pull(question);
+    await question.quiz.save({ session: sess });
+
+    /* Remove the image associated with this question */
+    if (imagePath) {
+      fs.unlink(imagePath, (err) => {
+        console.log(err);
+      });
+    }
+
+    await sess.commitTransaction();
+  } catch (err) {
+    return next(new HttpError("Something went wrong!", 500));
+  }
+
+  res.json({
+    message: "Deleted question successfully!",
+    questionId: questionId,
+  });
+};
 
 /* Done */
 const updateQuestion = async (req, res, next) => {
@@ -134,3 +192,4 @@ const getQuestionsByQuizId = async (req, res, next) => {
 exports.createQuestion = createQuestion;
 exports.getQuestionsByQuizId = getQuestionsByQuizId;
 exports.updateQuestion = updateQuestion;
+exports.deleteQuestion = deleteQuestion;

@@ -19,4 +19,10 @@ router.patch(
   questionControllers.updateQuestion
 );
 
+router.delete(
+  "/delete/:questionId",
+  fileUpload.imageUpload.any(),
+  questionControllers.deleteQuestion
+);
+
 module.exports = router;
