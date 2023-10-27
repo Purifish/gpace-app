@@ -66,6 +66,7 @@ function TopicsBrowse(props) {
               <TopicItem
                 topicName={courseItem.courseTitle}
                 imgSrc={courseItem.image}
+                description={courseItem.description}
                 startQuiz={() =>
                   navigate(
                     `/resources/${encodeURIComponent(courseItem.courseTitle)}/${

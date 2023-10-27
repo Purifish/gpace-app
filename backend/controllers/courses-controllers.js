@@ -46,6 +46,7 @@ const createCourse = async (req, res, next) => {
   const newCourse = new Course({
     courseTitle: courseTitle,
     courseCode: req.body.courseCode || "",
+    description: req.body.description || "",
     image: req.file ? req.file.path : "",
     quizzes: [],
     notes: [],
