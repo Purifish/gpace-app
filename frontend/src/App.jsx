@@ -18,7 +18,8 @@ function App() {
   const [authMode, setAuthMode] = useState(false);
 
   const [token, setToken] = useState(null);
-  const [userId, setUserId] = useState(false);
+  const [userId, setUserId] = useState(null);
+  const [username, setUsername] = useState(null);
   const [tokenExpiry, setTokenExpiry] = useState();
 
   const navigate = useNavigate();
@@ -31,9 +32,10 @@ function App() {
     setAuthMode(false);
   }
 
-  const login = useCallback((uid, token, expirationDate) => {
+  const login = useCallback((uid, username, token, expirationDate) => {
     setToken(token);
     setUserId(uid);
+    setUsername(username);
 
     const tokenExpirationDate =
       expirationDate || new Date(new Date().getTime() + 1000 * 3600);
@@ -44,6 +46,7 @@ function App() {
       "userData",
       JSON.stringify({
         userId: uid,
+        username: username,
         token: token,
         expiration: tokenExpirationDate.toISOString(),
       })
@@ -55,6 +58,7 @@ function App() {
     setToken(null);
     setTokenExpiry(null);
     setUserId(null);
+    setUsername(null);
     localStorage.removeItem("userData");
     navigate("/"); // redirect to homepage
   }, [navigate]);
@@ -80,6 +84,7 @@ function App() {
       // auto login
       login(
         storedData.userId,
+        storedData.username,
         storedData.token,
         new Date(storedData.expiration)
       );
@@ -92,6 +97,7 @@ function App() {
         isLoggedIn: !!token,
         token: token,
         userId: userId,
+        username: username,
         login: login,
         logout: logout,
       }}

@@ -4,6 +4,11 @@
   box-shadow: 2px 1px 4px 1px rgba(0, 0, 0, 0.4); /*so that the header appears above the rest*/
 }
 
+.welcome {
+  /* text-align: center; */
+  font-size: 30px;
+}
+
 .auth {
   text-align: right;
   font-size: 30px;

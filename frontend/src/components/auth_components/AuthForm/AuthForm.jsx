@@ -40,7 +40,11 @@ function AuthForm(props) {
             "Content-Type": "application/json",
           }
         );
-        auth.login(responseData.userId, responseData.token);
+        auth.login(
+          responseData.userId,
+          responseData.username,
+          responseData.token
+        );
         closeModal();
         setLoginMode(false);
       } catch (err) {
@@ -61,7 +65,11 @@ function AuthForm(props) {
           "POST",
           formData
         );
-        auth.login(responseData.userId, responseData.token);
+        auth.login(
+          responseData.userId,
+          responseData.username,
+          responseData.token
+        );
         closeModal();
         setLoginMode(false);
       } catch (err) {
