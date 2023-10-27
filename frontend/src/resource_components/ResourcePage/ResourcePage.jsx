@@ -12,7 +12,7 @@ import { CurrentCourseContext } from "../../contexts/CurrentCourseContext";
 function ResourcePage(props) {
   const courseTitle = decodeURI(useParams().courseTitle);
   const courseId = useParams().courseId;
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const { isLoading, sendRequest } = useHttpClient();
   const [resourceData, setResourceData] = useState({});
   const { currentCourse, setCurrentCourse } = useContext(CurrentCourseContext);
 
@@ -20,9 +20,16 @@ function ResourcePage(props) {
     const fetchResources = async () => {
       try {
         // get relevant data for the current course
-        const responseData = await sendRequest(
+        const response = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/courses/id/${courseId}`
         );
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(responseData.message);
+        }
+
         setResourceData(responseData);
       } catch (err) {
         // TODO: handle error when fetching from backend

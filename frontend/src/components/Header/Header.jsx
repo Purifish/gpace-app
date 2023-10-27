@@ -7,7 +7,7 @@ import { useContext } from "react";
 function Header(props) {
   const auth = useContext(AuthContext);
   const { openModal } = props;
-  const storedData = JSON.parse(localStorage.getItem("userData"));
+
   return (
     <div className={`row ${s.container}`}>
       {/*12 on mobile*/}
@@ -16,7 +16,7 @@ function Header(props) {
       </div>
       <div className="col-xs-0 col-sm-4 col-md-5 col-lg-6">
         <h2 className={`${s.welcome}`}>
-          {auth.isLoggedIn && `Welcome ${auth.username.split(" ")[0]}`}
+          {auth.isLoggedIn && `Welcome ${auth.userName.split(" ")[0]}`}
         </h2>
       </div>
       <div className={`col-xs-6 col-sm-4 col-md-3 col-lg-2`}>
@@ -24,7 +24,7 @@ function Header(props) {
           className={`${s.auth}`}
           onClick={auth.isLoggedIn ? auth.logout : openModal}
         >
-          {auth.isLoggedIn ? "Log Out" : "Sign Up"}
+          {auth.isLoggedIn ? "Log Out" : "Log In"}
         </h2>
       </div>
     </div>

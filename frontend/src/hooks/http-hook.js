@@ -2,8 +2,6 @@ import { useCallback, useState, useRef, useEffect } from "react";
 
 export const useHttpClient = () => {
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState();
-
   const activeHttpRequests = useRef([]);
 
   const sendRequest = useCallback(
@@ -20,28 +18,32 @@ export const useHttpClient = () => {
           signal: httpAbortCtrl.signal,
         });
 
-        const responseData = await response.json();
-
         activeHttpRequests.current = activeHttpRequests.current.filter(
           (reqCtrl) => reqCtrl !== httpAbortCtrl
         );
 
-        if (!response.ok) {
-          setError({
-            code: response.status,
-          });
-          throw new Error(responseData.message);
-        }
+        // const responseData = await response.json();
+
+        // if (!response.ok) {
+        //   // console.log(responseData.message);
+        //   // console.log(responseData.code);
+        //   setError({
+        //     code: response.status,
+        //   });
+        //   // setIsLoading(false);
+        //   throw new Error(responseData.message);
+        // }
 
         setIsLoading(false);
-        return responseData;
+        return response;
+        // return responseData;
       } catch (err) {
-        setError((prev) => {
-          return {
-            ...prev,
-            message: err.message,
-          };
-        });
+        // setError((prev) => {
+        //   return {
+        //     ...prev,
+        //     message: err.message,
+        //   };
+        // });
         setIsLoading(false);
         throw err;
       }
@@ -49,15 +51,11 @@ export const useHttpClient = () => {
     []
   );
 
-  const clearError = () => {
-    setError(null);
-  };
-
   useEffect(() => {
     return () => {
       activeHttpRequests.current.forEach((abortCtrl) => abortCtrl.abort());
     };
   }, []);
 
-  return { isLoading, error, sendRequest, clearError };
+  return { isLoading, sendRequest };
 };

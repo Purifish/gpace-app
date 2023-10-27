@@ -8,6 +8,7 @@ import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import { CurrentCourseContext } from "./contexts/CurrentCourseContext";
 import { AuthContext } from "./contexts/auth-context";
+import AuthSuccess from "./components/auth_components/AuthSuccess/AuthSuccess";
 
 let logoutTimer;
 
@@ -16,26 +17,27 @@ function App() {
   const [currentCourse, setCurrentCourse] = useState(initialCurrentCourse);
   // Set to true to display login modal
   const [authMode, setAuthMode] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
-  const [username, setUsername] = useState(null);
+  const [userName, setUserName] = useState(null);
   const [tokenExpiry, setTokenExpiry] = useState();
 
   const navigate = useNavigate();
 
-  function openModal() {
+  function openAuthModal() {
     setAuthMode(true);
   }
 
-  function closeModal() {
+  function closeAuthModal() {
     setAuthMode(false);
   }
 
-  const login = useCallback((uid, username, token, expirationDate) => {
+  const login = useCallback((uid, userName, token, expirationDate) => {
     setToken(token);
     setUserId(uid);
-    setUsername(username);
+    setUserName(userName);
 
     const tokenExpirationDate =
       expirationDate || new Date(new Date().getTime() + 1000 * 3600);
@@ -46,7 +48,7 @@ function App() {
       "userData",
       JSON.stringify({
         userId: uid,
-        username: username,
+        userName: userName,
         token: token,
         expiration: tokenExpirationDate.toISOString(),
       })
@@ -58,10 +60,15 @@ function App() {
     setToken(null);
     setTokenExpiry(null);
     setUserId(null);
-    setUsername(null);
+    setUserName(null);
     localStorage.removeItem("userData");
+    setSuccessMessage("You have been logged out");
     navigate("/"); // redirect to homepage
   }, [navigate]);
+
+  const updateSuccessMessage = useCallback((message) => {
+    setSuccessMessage(message);
+  }, []);
 
   /* Auto logout */
   useEffect(() => {
@@ -84,7 +91,7 @@ function App() {
       // auto login
       login(
         storedData.userId,
-        storedData.username,
+        storedData.userName,
         storedData.token,
         new Date(storedData.expiration)
       );
@@ -97,17 +104,23 @@ function App() {
         isLoggedIn: !!token,
         token: token,
         userId: userId,
-        username: username,
+        userName: userName,
+        successMessage: successMessage,
         login: login,
         logout: logout,
+        updateSuccessMessage: updateSuccessMessage,
       }}
     >
       <CurrentCourseContext.Provider
         value={{ currentCourse, setCurrentCourse }}
       >
         <div className={s.main_container}>
-          <Header openModal={openModal} />
-          <AuthForm authMode={authMode} closeModal={closeModal} />
+          <Header openModal={openAuthModal} />
+          <AuthForm authMode={authMode} closeModal={closeAuthModal} />
+          <AuthSuccess
+            successMessage={successMessage}
+            closeModal={() => setSuccessMessage("")}
+          />
           <div className={s.workspace}>
             <Outlet />
           </div>

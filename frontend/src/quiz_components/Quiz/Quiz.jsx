@@ -48,7 +48,7 @@ function calculateMaxScore(questions) {
 }
 
 function Quiz(props) {
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const { isLoading, sendRequest } = useHttpClient();
   // const topic = decodeURI(useParams().topicName);
   const quizId = useParams().quizId;
   const [userScore, setUserScore] = useState(0);
@@ -61,9 +61,15 @@ function Quiz(props) {
     // fetch quiz data from backend first
     const fetchQuestions = async () => {
       try {
-        const responseData = await sendRequest(
+        const response = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/questions/${quizId}`
         );
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(responseData.message);
+        }
 
         if (!responseData.questions || responseData.questions.length === 0) {
           setMaxScore(0);

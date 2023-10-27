@@ -9,27 +9,23 @@ import { useHttpClient } from "../../../hooks/http-hook";
 function AuthForm(props) {
   const auth = useContext(AuthContext);
   const { authMode, closeModal } = props;
-  const [isLoginMode, setLoginMode] = useState(false);
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const [isLoginMode, setLoginMode] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
+  const { isLoading, sendRequest } = useHttpClient();
   const [formState, setFormState] = useState({
     email: "",
-    username: "",
+    name: "",
     password: "",
     image: null,
   });
 
-  useEffect(() => {
-    clearError();
-  }, [clearError]);
-
   async function authSubmitHandler(event) {
-    clearError();
+    setErrorMessage("");
     event.preventDefault();
-    // console.log("TEST");
     // console.log(formState);
     if (isLoginMode) {
       try {
-        const responseData = await sendRequest(
+        const response = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/users/login`,
           "POST",
           JSON.stringify({
@@ -40,23 +36,29 @@ function AuthForm(props) {
             "Content-Type": "application/json",
           }
         );
-        auth.login(
-          responseData.userId,
-          responseData.username,
-          responseData.token
-        );
-        closeModal();
-        setLoginMode(false);
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          setErrorMessage(responseData.message);
+        } else {
+          auth.login(
+            responseData.userId,
+            responseData.name,
+            responseData.token
+          );
+          closeModal();
+          setLoginMode(true);
+          auth.updateSuccessMessage("Log In Successful!");
+        }
       } catch (err) {
-        // if (error && error.code >= 400 && error.code < 500) {
-        // }
-        // console.log(error.code);
+        setErrorMessage(err.message);
       }
     } else {
       try {
         const formData = new FormData();
         formData.append("email", formState.email);
-        formData.append("username", formState.username);
+        formData.append("name", formState.name);
         formData.append("password", formState.password);
         formData.append("image", formState.image);
 
@@ -65,13 +67,10 @@ function AuthForm(props) {
           "POST",
           formData
         );
-        auth.login(
-          responseData.userId,
-          responseData.username,
-          responseData.token
-        );
+        auth.login(responseData.userId, responseData.name, responseData.token);
         closeModal();
-        setLoginMode(false);
+        setLoginMode(true);
+        auth.updateSuccessMessage("Sign Up Successful!");
       } catch (err) {
         console.log("Signup Error");
       }
@@ -90,7 +89,7 @@ function AuthForm(props) {
           class={`${s.close_modal}`}
           onClick={() => {
             closeModal();
-            setLoginMode(false);
+            setLoginMode(true);
           }}
         >
           &times;
@@ -123,14 +122,14 @@ function AuthForm(props) {
               <input
                 id="username"
                 type="text"
-                placeholder="Username"
+                placeholder="Name"
                 className={`${s.form_input}`}
-                value={formState.username}
+                value={formState.name}
                 onChange={(event) => {
                   setFormState((prev) => {
                     return {
                       ...prev,
-                      username: event.target.value,
+                      name: event.target.value,
                     };
                   });
                 }}
@@ -155,9 +154,9 @@ function AuthForm(props) {
             />
           </div>
 
-          {error && (
+          {errorMessage && (
             <div className={`${s.error_container}`}>
-              <p>{error.message}</p>
+              <p>{`${errorMessage}`}</p>
             </div>
           )}
 
@@ -167,6 +166,7 @@ function AuthForm(props) {
               <a
                 className={`${s.anchor}`}
                 onClick={() => {
+                  setErrorMessage("");
                   setLoginMode((prev) => !prev);
                 }}
               >

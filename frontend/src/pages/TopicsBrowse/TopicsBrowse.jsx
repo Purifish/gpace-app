@@ -29,17 +29,22 @@ import { CurrentCourseContext } from "../../contexts/CurrentCourseContext";
 
 function TopicsBrowse(props) {
   const navigate = useNavigate();
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const { isLoading, sendRequest } = useHttpClient();
   const [coursesList, setCoursesList] = useState();
   const { currentCourse, setCurrentCourse } = useContext(CurrentCourseContext);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const responseData = await sendRequest(
+        const response = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/courses/`
         );
-        setCoursesList(responseData.courses);
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+          setCoursesList(responseData.courses);
+        }
       } catch (err) {}
     };
     fetchCourses();
