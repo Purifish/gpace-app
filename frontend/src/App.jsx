@@ -1,20 +1,17 @@
 import s from "./style.module.css";
 
 import { Outlet, useNavigate } from "react-router-dom";
-import { useCallback, useContext, useState, useEffect } from "react";
+import { useCallback, useState, useEffect } from "react";
 
 import AuthForm from "./components/auth_components/AuthForm/AuthForm";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
-import { CurrentCourseContext } from "./contexts/CurrentCourseContext";
 import { AuthContext } from "./contexts/auth-context";
 import AuthSuccess from "./components/auth_components/AuthSuccess/AuthSuccess";
 
 let logoutTimer;
 
 function App() {
-  const initialCurrentCourse = useContext(CurrentCourseContext);
-  const [currentCourse, setCurrentCourse] = useState(initialCurrentCourse);
   // Set to true to display login modal
   const [authMode, setAuthMode] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
@@ -111,22 +108,18 @@ function App() {
         updateSuccessMessage: updateSuccessMessage,
       }}
     >
-      <CurrentCourseContext.Provider
-        value={{ currentCourse, setCurrentCourse }}
-      >
-        <div className={s.main_container}>
-          <Header openModal={openAuthModal} />
-          <AuthForm authMode={authMode} closeModal={closeAuthModal} />
-          <AuthSuccess
-            successMessage={successMessage}
-            closeModal={() => setSuccessMessage("")}
-          />
-          <div className={s.workspace}>
-            <Outlet />
-          </div>
-          {/* <Footer /> */}
+      <div className={s.main_container}>
+        <Header openModal={openAuthModal} />
+        <AuthForm authMode={authMode} closeModal={closeAuthModal} />
+        <AuthSuccess
+          successMessage={successMessage}
+          closeModal={() => setSuccessMessage("")}
+        />
+        <div className={s.workspace}>
+          <Outlet />
         </div>
-      </CurrentCourseContext.Provider>
+        {/* <Footer /> */}
+      </div>
     </AuthContext.Provider>
   );
 }

@@ -1,20 +1,18 @@
 import { useParams, Link } from "react-router-dom";
 
 import s from "./style.module.css";
-import { useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useHttpClient } from "../../hooks/http-hook";
 
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import NotesResource from "../NotesResource/NotesResource";
 import VideoResource from "../VideoResource/VideoResource";
-import { CurrentCourseContext } from "../../contexts/CurrentCourseContext";
 
 function ResourcePage(props) {
   const courseTitle = decodeURI(useParams().courseTitle);
   const courseId = useParams().courseId;
   const { isLoading, sendRequest } = useHttpClient();
   const [resourceData, setResourceData] = useState({});
-  const { currentCourse, setCurrentCourse } = useContext(CurrentCourseContext);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -36,11 +34,7 @@ function ResourcePage(props) {
       }
     };
     fetchResources();
-    setCurrentCourse({
-      courseTitle: courseTitle,
-      courseId: courseId,
-    });
-  }, [sendRequest, courseId, courseTitle, setCurrentCourse]);
+  }, [sendRequest, courseId, courseTitle]);
 
   if (!resourceData || !resourceData.notes || !resourceData.videos) {
     return (
@@ -95,7 +89,7 @@ function ResourcePage(props) {
             return (
               <span key={`${courseTitle}-quiz-${idx}`}>
                 <Link
-                  to={`/quiz/${quiz.id}`}
+                  to={`quiz/${quiz.id}`}
                 >{`Try the ${quiz.title} quiz!`}</Link>
               </span>
             );

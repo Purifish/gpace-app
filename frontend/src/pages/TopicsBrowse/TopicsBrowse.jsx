@@ -6,32 +6,12 @@ import { useNavigate } from "react-router-dom";
 // import logoImg from "../../assets/images/logo.png";
 // import mathImg from "../../assets/images/math.png";
 import { useHttpClient } from "../../hooks/http-hook";
-import { useContext, useEffect, useState } from "react";
-import { CurrentCourseContext } from "../../contexts/CurrentCourseContext";
-
-// const topicList = [
-//   {
-//     name: "Geography",
-//     img: logoImg,
-//     pathName: "geography",
-//   },
-//   {
-//     name: "C++",
-//     img: logoImg,
-//     pathName: "c++",
-//   },
-//   {
-//     name: "Maths",
-//     img: mathImg,
-//     pathName: "math",
-//   },
-// ];
+import { useEffect, useState } from "react";
 
 function TopicsBrowse(props) {
   const navigate = useNavigate();
-  const { isLoading, sendRequest } = useHttpClient();
+  const { sendRequest } = useHttpClient();
   const [coursesList, setCoursesList] = useState();
-  const { currentCourse, setCurrentCourse } = useContext(CurrentCourseContext);
 
   useEffect(() => {
     const fetchCourses = async () => {
@@ -48,11 +28,7 @@ function TopicsBrowse(props) {
       } catch (err) {}
     };
     fetchCourses();
-    setCurrentCourse({
-      courseTitle: "",
-      courseId: "",
-    });
-  }, [sendRequest, setCurrentCourse]);
+  }, [sendRequest]);
 
   return (
     coursesList && (
@@ -69,7 +45,7 @@ function TopicsBrowse(props) {
                 description={courseItem.description}
                 startQuiz={() =>
                   navigate(
-                    `/resources/${encodeURIComponent(courseItem.courseTitle)}/${
+                    `/resource/${encodeURIComponent(courseItem.courseTitle)}/${
                       courseItem.id
                     }`
                   )

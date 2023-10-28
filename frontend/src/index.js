@@ -14,9 +14,12 @@ root.render(
       <Routes>
         <Route path="/" element={<App />}>
           <Route path="/" element={<TopicsBrowse />} />
-          <Route path="/quiz/:quizId" element={<Quiz />} />
           <Route
-            path="/resources/:courseTitle/:courseId"
+            path="/resource/:courseTitle/:courseId/quiz/:quizId"
+            element={<Quiz />}
+          />
+          <Route
+            path="/resource/:courseTitle/:courseId"
             element={<ResourcePage />}
           />
 

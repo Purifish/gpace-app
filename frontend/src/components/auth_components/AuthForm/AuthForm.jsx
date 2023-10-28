@@ -62,17 +62,28 @@ function AuthForm(props) {
         formData.append("password", formState.password);
         formData.append("image", formState.image);
 
-        const responseData = await sendRequest(
+        const response = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/users/signup`,
           "POST",
           formData
         );
-        auth.login(responseData.userId, responseData.name, responseData.token);
-        closeModal();
-        setLoginMode(true);
-        auth.updateSuccessMessage("Sign Up Successful!");
+
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          setErrorMessage(responseData.message);
+        } else {
+          auth.login(
+            responseData.userId,
+            responseData.name,
+            responseData.token
+          );
+          closeModal();
+          setLoginMode(true);
+          auth.updateSuccessMessage("Sign Up Successful!");
+        }
       } catch (err) {
-        console.log("Signup Error");
+        setErrorMessage(err.message);
       }
     }
   }
