@@ -1,8 +1,4 @@
-import { useContext, useState } from "react";
-
-import { AuthContext } from "../../contexts/auth-context";
-import s from "./style.module.css";
-import Logo from "../Logo/Logo";
+import { useState } from "react";
 
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -14,32 +10,25 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
-import { Avatar, Tooltip } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+
+import Logo from "../Logo/Logo";
 
 const pages = [];
+// const pages2 = ["Log Out"];
+const settings = [
+  {
+    text: "Login",
+    handleClick: () => {
+      alert("helloo");
+    },
+  },
+];
+const settings2 = ["Logout"];
 
-function Header(props) {
-  const auth = useContext(AuthContext);
-  const { openModal } = props;
-
+function ResponsiveAppBar() {
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
-  const loggedOutSettings = [
-    {
-      text: "Login",
-      handleClick: () => {
-        openModal();
-      },
-    },
-  ];
-  const loggedInSettings = [
-    {
-      text: "Logout",
-      handleClick: () => {
-        auth.login();
-      },
-    },
-  ];
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -57,7 +46,7 @@ function Header(props) {
   };
 
   return (
-    <AppBar position="static" color="error">
+    <AppBar position="static">
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Logo />
@@ -119,15 +108,8 @@ function Header(props) {
             ))}
           </Box>
 
-          <Box sx={{ marginRight: "15px" }}>
-            {auth.isLoggedIn && (
-              <Typography textAlign="center">
-                {auth.userName.split(" ")[0]}
-              </Typography>
-            )}
-          </Box>
-
           <Box sx={{ flexGrow: 0 }}>
+            <Typography textAlign="center">{page.text}</Typography>
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
               <Avatar alt="User" src="" />
             </IconButton>
@@ -147,47 +129,22 @@ function Header(props) {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {(auth.isLoggedIn ? loggedInSettings : loggedOutSettings).map(
-                (setting) => (
-                  <MenuItem
-                    key={setting.text}
-                    onClick={() => {
-                      setting.handleClick();
-                      handleCloseUserMenu();
-                    }}
-                  >
-                    <Typography textAlign="center">{setting.text}</Typography>
-                  </MenuItem>
-                )
-              )}
+              {settings.map((setting) => (
+                <MenuItem
+                  key={setting.text}
+                  onClick={() => {
+                    setting.handleClick();
+                    handleCloseUserMenu();
+                  }}
+                >
+                  <Typography textAlign="center">{setting.text}</Typography>
+                </MenuItem>
+              ))}
             </Menu>
           </Box>
         </Toolbar>
       </Container>
     </AppBar>
   );
-
-  return (
-    <div className={`row ${s.container}`}>
-      {/*12 on mobile*/}
-      <div className="col-xs-6 col-sm-4">
-        <Logo />
-      </div>
-      <div className="col-xs-0 col-sm-4 col-md-5 col-lg-6">
-        <h2 className={`${s.welcome}`}>
-          {auth.isLoggedIn && `Welcome ${auth.userName.split(" ")[0]}`}
-        </h2>
-      </div>
-      <div className={`col-xs-6 col-sm-4 col-md-3 col-lg-2`}>
-        <h2
-          className={`${s.auth}`}
-          onClick={auth.isLoggedIn ? auth.logout : openModal}
-        >
-          {auth.isLoggedIn ? "Log Out" : "Log In"}
-        </h2>
-      </div>
-    </div>
-  );
 }
-
-export default Header;
+export default ResponsiveAppBar;
