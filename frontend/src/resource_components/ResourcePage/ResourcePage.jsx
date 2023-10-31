@@ -11,7 +11,7 @@ import VideoResource from "../VideoResource/VideoResource";
 function ResourcePage(props) {
   const courseTitle = decodeURI(useParams().courseTitle);
   const courseId = useParams().courseId;
-  const { isLoading, sendRequest } = useHttpClient();
+  const { sendRequest } = useHttpClient();
   const [resourceData, setResourceData] = useState({});
 
   useEffect(() => {

@@ -20,6 +20,9 @@ app.use(bodyParser.json());
 /* For serving images */
 app.use("/uploads/images", express.static(path.join("uploads", "images")));
 
+/* For serving pdfs */
+app.use("/uploads/pdf", express.static(path.join("uploads", "pdf")));
+
 /* Handle CORS errors */
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

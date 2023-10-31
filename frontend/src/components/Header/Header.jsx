@@ -14,7 +14,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
-import { Avatar, Tooltip } from "@mui/material";
+import { Avatar } from "@mui/material";
 
 const pages = [];
 
@@ -36,7 +36,7 @@ function Header(props) {
     {
       text: "Logout",
       handleClick: () => {
-        auth.login();
+        auth.logout();
       },
     },
   ];
@@ -57,7 +57,7 @@ function Header(props) {
   };
 
   return (
-    <AppBar position="static" color="error">
+    <AppBar position="static" sx={{ background: "#0174BE" }}>
       <Container maxWidth="xl">
         <Toolbar disableGutters>
           <Logo />

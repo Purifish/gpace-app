@@ -118,7 +118,7 @@ function App() {
         <div className={s.workspace}>
           <Outlet />
         </div>
-        {/* <Footer /> */}
+        <Footer />
       </div>
     </AuthContext.Provider>
   );

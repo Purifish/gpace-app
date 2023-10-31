@@ -7,8 +7,17 @@ function NotesResource(props) {
     <div className={`card ${s.container}`}>
       <div className="card-body">
         <h5 className="card-title">{title}</h5>
-        <a type="button" target="_blank" rel="noreferrer" href={notesLink}>
-          Link
+        <a
+          type="button"
+          target="_blank"
+          rel="noreferrer"
+          href={
+            notesFile
+              ? `${process.env.REACT_APP_ASSET_URL}/${notesFile}`
+              : notesLink
+          }
+        >
+          {`${title} Notes`}
         </a>
         <p className="card-text">{description}</p>
       </div>
