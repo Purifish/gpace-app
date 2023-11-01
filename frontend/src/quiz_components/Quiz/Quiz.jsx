@@ -4,39 +4,11 @@ import QuizQuestion from "../QuizQuestion/QuizQuestion";
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
-// import Button from "react-bootstrap/Button";
 import Button from "@mui/material/Button";
 
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import QuizResult from "../QuizResult/QuizResult";
 import { useHttpClient } from "../../hooks/http-hook";
-
-// const data = {
-//   title: "Geography",
-//   questions: [
-//     {
-//       title: "What is the capital of China?",
-//       options: ["Shanghai", "Beijing", "Peking"],
-//       solution: [1], // must be in ascending order
-//       score: 2,
-//       type: "radio",
-//     },
-//     {
-//       title: "Which continent is the largest?",
-//       options: ["North America", "South America", "Asia", "Africa"],
-//       solution: [2],
-//       score: 2,
-//       type: "radio",
-//     },
-//     {
-//       title: "Which of these countries can be found in Asia?",
-//       options: ["Japan", "Germany", "Sudan", "Oman", "Laos"],
-//       solution: [0, 3, 4],
-//       score: 2,
-//       type: "checkbox",
-//     },
-//   ],
-// };
 
 function calculateMaxScore(questions) {
   let total = 0;
@@ -189,11 +161,7 @@ function Quiz(props) {
           )}
         </>
       ) : (
-        <QuizResult
-          userScore={userScore}
-          maxScore={maxScore}
-          quizTopic={`topic`}
-        />
+        <QuizResult userScore={userScore} maxScore={maxScore} quizTopic={``} />
       )}
     </>
   );

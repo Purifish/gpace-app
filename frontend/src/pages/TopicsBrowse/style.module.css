@@ -1,4 +1,9 @@
 .card_container {
-    /* width: 300px; */
-    margin: 10px;
+  /* width: 300px; */
+  padding: 30px 10px 0 0;
+}
+
+.course_list_container {
+  margin-bottom: 30px;
+  padding: 0 30px;
 }

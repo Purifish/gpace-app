@@ -32,7 +32,7 @@ function TopicsBrowse(props) {
 
   return (
     coursesList && (
-      <div className={`row justify-content-center`}>
+      <div className={`row justify-content-center ${s.course_list_container}`}>
         {coursesList.map((courseItem, idx) => {
           return (
             <div
@@ -43,11 +43,11 @@ function TopicsBrowse(props) {
                 topicName={courseItem.courseTitle}
                 imgSrc={courseItem.image}
                 description={courseItem.description}
-                startQuiz={() =>
+                exploreTopic={() =>
                   navigate(
                     `/resource/${encodeURIComponent(courseItem.courseTitle)}/${
                       courseItem.id
-                    }`
+                    }/notes`
                   )
                 }
               />

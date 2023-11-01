@@ -6,6 +6,7 @@ import { useCallback, useState, useEffect } from "react";
 import AuthForm from "./components/auth_components/AuthForm/AuthForm";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
+import SideBar from "./components/SideBar/SideBar";
 import { AuthContext } from "./contexts/auth-context";
 import AuthSuccess from "./components/auth_components/AuthSuccess/AuthSuccess";
 
@@ -108,7 +109,7 @@ function App() {
         updateSuccessMessage: updateSuccessMessage,
       }}
     >
-      <div className={s.main_container}>
+      <div className={s.main_container} style={{ position: "relative" }}>
         <Header openModal={openAuthModal} />
         <AuthForm authMode={authMode} closeModal={closeAuthModal} />
         <AuthSuccess

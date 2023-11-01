@@ -3,7 +3,7 @@ import s from "./style.module.css";
 import logoImg from "../../assets/images/logo.png";
 
 function TopicItem(props) {
-  const { topicName, imgSrc, description, startQuiz } = props;
+  const { topicName, imgSrc, description, exploreTopic } = props;
   const capitalizedTopic = topicName
     .split(" ")
     .map((word) => {
@@ -27,7 +27,7 @@ function TopicItem(props) {
         <p className="card-text">
           {`${description || "No description found for this course."}`}
         </p>
-        <Button variant="outlined" onClick={startQuiz}>
+        <Button variant="outlined" onClick={exploreTopic}>
           Explore
         </Button>
       </div>

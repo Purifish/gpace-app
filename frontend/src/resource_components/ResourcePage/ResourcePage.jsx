@@ -6,10 +6,12 @@ import { useHttpClient } from "../../hooks/http-hook";
 
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import NotesResource from "../NotesResource/NotesResource";
+import SideBar from "../../components/SideBar/SideBar";
 import VideoResource from "../VideoResource/VideoResource";
 
 function ResourcePage(props) {
   const courseTitle = decodeURI(useParams().courseTitle);
+  const resourceType = decodeURI(useParams().resourceType);
   const courseId = useParams().courseId;
   const { sendRequest } = useHttpClient();
   const [resourceData, setResourceData] = useState({});
@@ -44,9 +46,9 @@ function ResourcePage(props) {
     );
   }
 
-  return (
-    <>
-      <div className={`row justify-content-center`}>
+  function getAppropriateResource(resourceType) {
+    if (resourceType === "notes") {
+      return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
           <h4 className={s.section_title}>Notes</h4>
           <div>
@@ -63,8 +65,9 @@ function ResourcePage(props) {
             })}
           </div>
         </div>
-      </div>
-      <div className={`row justify-content-center`}>
+      );
+    } else if (resourceType === "videos") {
+      return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
           <h4 className={s.section_title}>Videos</h4>
           <div>
@@ -80,10 +83,11 @@ function ResourcePage(props) {
             })}
           </div>
         </div>
-      </div>
-      <div className={`row justify-content-center`}>
+      );
+    } else if (resourceType === "quizzes") {
+      return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4 className={s.section_title}>Quiz</h4>
+          <h4 className={s.section_title}>Quizzes</h4>
           <br></br>
           {resourceData.quizzes.map((quiz, idx) => {
             return (
@@ -95,11 +99,21 @@ function ResourcePage(props) {
             );
           })}
         </div>
-      </div>
-      <div className={`row justify-content-center`}>
+      );
+    } else if (resourceType === "tutors") {
+      return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
           <h4 className={s.section_title}>Tutors</h4>
         </div>
+      );
+    }
+  }
+
+  return (
+    <>
+      <SideBar />
+      <div className={`row justify-content-center`}>
+        {getAppropriateResource(resourceType)}
       </div>
     </>
   );
