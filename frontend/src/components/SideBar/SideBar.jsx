@@ -16,25 +16,29 @@ const resources = ["Notes", "Videos", "Quizzes", "Exams", "Tutors"];
 
 function SideBar() {
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(true);
+  const [isCollapsed, setIsCollapsed] = useState(false);
 
-  const toggleDrawer = (open) => (event) => {
-    if (
-      event.type === "keydown" &&
-      (event.key === "Tab" || event.key === "Shift")
-    ) {
-      return;
-    }
+  // const toggleDrawer = (open) => (event) => {
+  //   if (
+  //     event.type === "keydown" &&
+  //     (event.key === "Tab" || event.key === "Shift")
+  //   ) {
+  //     return;
+  //   }
 
-    setIsOpen(open);
-  };
+  //   setIsCollapsed(open);
+  // };
+
+  function handleClick() {
+    setIsCollapsed((prev) => !prev);
+  }
 
   const items = () => (
     <Box
       sx={{ width: 250 }}
       role="presentation"
-      onClick={() => toggleDrawer(false)}
-      onKeyDown={() => toggleDrawer(false)}
+      // onClick={() => toggleDrawer(false)}
+      // onKeyDown={() => toggleDrawer(false)}
     >
       <List>
         {resources.map((text, index) => (
@@ -68,7 +72,19 @@ function SideBar() {
     </Box>
   );
 
-  return <div className={`${s.container}`}>{items()}</div>;
+  return (
+    <>
+      {!isCollapsed && <div className={`${s.container}`}>{items()}</div>}
+      <div
+        className={`${s.btn_container} ${
+          isCollapsed ? s.btn_collapsed : s.btn_expand
+        }`}
+        onClick={handleClick}
+      >
+        {`${isCollapsed ? ">" : "<"}`}
+      </div>
+    </>
+  );
 }
 
 export default SideBar;

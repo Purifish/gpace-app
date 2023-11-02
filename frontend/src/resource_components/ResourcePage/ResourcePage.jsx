@@ -1,4 +1,4 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 
 import s from "./style.module.css";
 import { useEffect, useState } from "react";
@@ -9,8 +9,10 @@ import NotesResource from "../NotesResource/NotesResource";
 import SideBar from "../../components/SideBar/SideBar";
 import VideoResource from "../VideoResource/VideoResource";
 import ExamResourse from "../ExamResource/ExamResource";
+import { Typography } from "@mui/material";
 
 function ResourcePage(props) {
+  const navigate = useNavigate();
   const courseTitle = decodeURI(useParams().courseTitle);
   const capitalizedCourseTitle = courseTitle
     .split(" ")
@@ -22,6 +24,20 @@ function ResourcePage(props) {
   const courseId = useParams().courseId;
   const { sendRequest } = useHttpClient();
   const [resourceData, setResourceData] = useState({});
+
+  /* Re-direct to notes route if invalid resource path */
+  useEffect(() => {
+    const validResourceNames = [
+      "notes",
+      "quizzes",
+      "videos",
+      "tutors",
+      "exams",
+    ];
+    if (validResourceNames.indexOf(resourceType) === -1) {
+      navigate("./../notes");
+    }
+  }, []);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -136,9 +152,13 @@ function ResourcePage(props) {
     } else if (resourceType === "exams") {
       return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4
+          <Typography
+            variant="h5"
+            mb={"30px"}
+          >{`${capitalizedCourseTitle} Exam Papers`}</Typography>
+          {/* <h4
             className={s.section_title}
-          >{`${capitalizedCourseTitle} Exam Papers`}</h4>
+          >{`${capitalizedCourseTitle} Exam Papers`}</h4> */}
           <div>
             {resourceData.examPapers.map((examPaper, idx) => {
               return (
@@ -173,12 +193,12 @@ function ResourcePage(props) {
   }
 
   return (
-    <>
+    <div>
       <SideBar />
       <div className={`row justify-content-center`}>
         {getAppropriateResource(resourceType)}
       </div>
-    </>
+    </div>
   );
 }
 
