@@ -12,8 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 import s from "./style.module.css";
 
-const sideBarPosition = "left";
-const resources = ["Notes", "Videos", "Quizzes", "Tutors"];
+const resources = ["Notes", "Videos", "Quizzes", "Exams", "Tutors"];
 
 function SideBar() {
   const navigate = useNavigate();
@@ -30,9 +29,9 @@ function SideBar() {
     setIsOpen(open);
   };
 
-  const items = (anchor) => (
+  const items = () => (
     <Box
-      sx={{ width: anchor === "top" || anchor === "bottom" ? "auto" : 250 }}
+      sx={{ width: 250 }}
       role="presentation"
       onClick={() => toggleDrawer(false)}
       onKeyDown={() => toggleDrawer(false)}
@@ -69,7 +68,7 @@ function SideBar() {
     </Box>
   );
 
-  return <div className={`${s.container}`}>{items(sideBarPosition)}</div>;
+  return <div className={`${s.container}`}>{items()}</div>;
 }
 
 export default SideBar;

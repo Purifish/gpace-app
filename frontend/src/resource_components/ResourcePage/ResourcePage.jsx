@@ -8,9 +8,16 @@ import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import NotesResource from "../NotesResource/NotesResource";
 import SideBar from "../../components/SideBar/SideBar";
 import VideoResource from "../VideoResource/VideoResource";
+import ExamResourse from "../ExamResource/ExamResource";
 
 function ResourcePage(props) {
   const courseTitle = decodeURI(useParams().courseTitle);
+  const capitalizedCourseTitle = courseTitle
+    .split(" ")
+    .map((word) => {
+      return word[0].toUpperCase() + word.substring(1);
+    })
+    .join(" ");
   const resourceType = decodeURI(useParams().resourceType);
   const courseId = useParams().courseId;
   const { sendRequest } = useHttpClient();
@@ -38,7 +45,13 @@ function ResourcePage(props) {
     fetchResources();
   }, [sendRequest, courseId, courseTitle]);
 
-  if (!resourceData || !resourceData.notes || !resourceData.videos) {
+  if (
+    !resourceData ||
+    !resourceData.notes ||
+    !resourceData.videos ||
+    !resourceData.examPapers ||
+    !resourceData.examSolutions
+  ) {
     return (
       <div className="center">
         <LoadingSpinner asOverlay />
@@ -50,7 +63,9 @@ function ResourcePage(props) {
     if (resourceType === "notes") {
       return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4 className={s.section_title}>Notes</h4>
+          <h4
+            className={s.section_title}
+          >{`${capitalizedCourseTitle} Notes`}</h4>
           <div>
             {resourceData.notes.map((note, idx) => {
               return (
@@ -69,7 +84,9 @@ function ResourcePage(props) {
     } else if (resourceType === "videos") {
       return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4 className={s.section_title}>Videos</h4>
+          <h4
+            className={s.section_title}
+          >{`${capitalizedCourseTitle} Videos`}</h4>
           <div>
             {resourceData.videos.map((video, idx) => {
               return (
@@ -87,15 +104,23 @@ function ResourcePage(props) {
     } else if (resourceType === "quizzes") {
       return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4 className={s.section_title}>Quizzes</h4>
+          <h4
+            className={s.section_title}
+          >{`${capitalizedCourseTitle} Quizzes`}</h4>
           <br></br>
           {resourceData.quizzes.map((quiz, idx) => {
             return (
-              <span key={`${courseTitle}-quiz-${idx}`}>
-                <Link
-                  to={`quiz/${quiz.id}`}
-                >{`Try the ${quiz.title} quiz!`}</Link>
-              </span>
+              <div
+                key={`${courseTitle}-quiz-${idx}`}
+                style={{ marginBottom: "30px" }}
+              >
+                <span>
+                  {`Quiz ${idx + 1}: `}
+                  <Link
+                    to={`quiz/${quiz.id}`}
+                  >{`Try the ${quiz.title} quiz!`}</Link>
+                </span>
+              </div>
             );
           })}
         </div>
@@ -103,7 +128,45 @@ function ResourcePage(props) {
     } else if (resourceType === "tutors") {
       return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4 className={s.section_title}>Tutors</h4>
+          <h4
+            className={s.section_title}
+          >{`${capitalizedCourseTitle} Tutors`}</h4>
+        </div>
+      );
+    } else if (resourceType === "exams") {
+      return (
+        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
+          <h4
+            className={s.section_title}
+          >{`${capitalizedCourseTitle} Exam Papers`}</h4>
+          <div>
+            {resourceData.examPapers.map((examPaper, idx) => {
+              return (
+                <ExamResourse
+                  key={`${courseTitle}-exampaper-${idx}`}
+                  title={examPaper.title}
+                  examLink={examPaper.link}
+                  examFile={examPaper.file}
+                />
+              );
+            })}
+          </div>
+          <br></br>
+          <h4
+            className={s.section_title}
+          >{`${capitalizedCourseTitle} Exam Solutions`}</h4>
+          <div>
+            {resourceData.examSolutions.map((examSolution, idx) => {
+              return (
+                <ExamResourse
+                  key={`${courseTitle}-examsol-${idx}`}
+                  title={examSolution.title}
+                  examLink={examSolution.link}
+                  examFile={examSolution.file}
+                />
+              );
+            })}
+          </div>
         </div>
       );
     }

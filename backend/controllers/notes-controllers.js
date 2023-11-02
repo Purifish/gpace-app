@@ -134,7 +134,7 @@ const createNote = async (req, res, next) => {
   const createdNote = new Note({
     title: title,
     description: description,
-    link: link,
+    link: link || "",
     file: req.file ? req.file.path : "",
     course: courseId,
   });

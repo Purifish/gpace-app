@@ -13,6 +13,12 @@ const courseSchema = new mongoose.Schema({
   quizzes: [{ type: mongoose.Types.ObjectId, required: true, ref: "Quiz" }],
   notes: [{ type: mongoose.Types.ObjectId, required: true, ref: "Note" }],
   videos: [{ type: mongoose.Types.ObjectId, required: true, ref: "Video" }],
+  examPapers: [
+    { type: mongoose.Types.ObjectId, required: true, ref: "ExamPaper" },
+  ],
+  examSolutions: [
+    { type: mongoose.Types.ObjectId, required: true, ref: "ExamSolution" },
+  ],
 });
 
 courseSchema.plugin(uniqueValidator); // force courseTitle to be unique

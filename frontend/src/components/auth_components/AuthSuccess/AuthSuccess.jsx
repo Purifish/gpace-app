@@ -16,7 +16,7 @@ function AuthSuccess(props) {
       >
         {/* Exit Button */}
         <button
-          class={`${s.close_modal}`}
+          className={`${s.close_modal}`}
           onClick={() => {
             closeModal();
           }}

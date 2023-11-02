@@ -5,6 +5,8 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const mongoose = require("mongoose");
 
+const examPapersRoutes = require("./routes/examPapers-routes");
+const examSolutionRoutes = require("./routes/examSolutions-routes");
 const quizzesRoutes = require("./routes/quizzes-routes");
 const questionsRoutes = require("./routes/questions-routes");
 const coursesRoutes = require("./routes/courses-routes");
@@ -46,6 +48,10 @@ app.use("/api/notes", notesRoutes);
 app.use("/api/video", videosRoutes);
 
 app.use("/api/users", usersRoutes);
+
+app.use("/api/exam-papers", examPapersRoutes);
+
+app.use("/api/exam-solutions", examSolutionRoutes);
 
 /*
   "default" path
