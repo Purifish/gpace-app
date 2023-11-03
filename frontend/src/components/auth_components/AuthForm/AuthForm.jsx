@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 
 import { Button } from "@mui/material";
 
@@ -11,7 +11,7 @@ function AuthForm(props) {
   const { authMode, closeModal } = props;
   const [isLoginMode, setLoginMode] = useState(true);
   const [errorMessage, setErrorMessage] = useState("");
-  const { isLoading, sendRequest } = useHttpClient();
+  const { sendRequest } = useHttpClient();
   const [formState, setFormState] = useState({
     email: "",
     name: "",
@@ -101,6 +101,7 @@ function AuthForm(props) {
           onClick={() => {
             closeModal();
             setLoginMode(true);
+            setErrorMessage("");
           }}
         >
           &times;

@@ -28,14 +28,14 @@
 }
 
 .error_container {
-  font-size: 14px;
+  font-size: 0.9rem;
   display: flex;
   justify-content: center;
   color: red;
 }
 
 .remark_container {
-  font-size: 14px;
+  font-size: 0.9rem;
   display: flex;
   justify-content: center;
 }

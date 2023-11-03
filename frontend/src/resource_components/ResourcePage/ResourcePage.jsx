@@ -9,7 +9,6 @@ import NotesResource from "../NotesResource/NotesResource";
 import SideBar from "../../components/SideBar/SideBar";
 import VideoResource from "../VideoResource/VideoResource";
 import ExamResourse from "../ExamResource/ExamResource";
-import { Typography } from "@mui/material";
 
 function ResourcePage(props) {
   const navigate = useNavigate();
@@ -37,7 +36,7 @@ function ResourcePage(props) {
     if (validResourceNames.indexOf(resourceType) === -1) {
       navigate("./../notes");
     }
-  }, []);
+  }, [navigate, resourceType]);
 
   useEffect(() => {
     const fetchResources = async () => {
@@ -79,9 +78,9 @@ function ResourcePage(props) {
     if (resourceType === "notes") {
       return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4
+          <h1
             className={s.section_title}
-          >{`${capitalizedCourseTitle} Notes`}</h4>
+          >{`${capitalizedCourseTitle} Notes`}</h1>
           <div>
             {resourceData.notes.map((note, idx) => {
               return (
@@ -152,13 +151,9 @@ function ResourcePage(props) {
     } else if (resourceType === "exams") {
       return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <Typography
-            variant="h5"
-            mb={"30px"}
-          >{`${capitalizedCourseTitle} Exam Papers`}</Typography>
-          {/* <h4
+          <h4
             className={s.section_title}
-          >{`${capitalizedCourseTitle} Exam Papers`}</h4> */}
+          >{`${capitalizedCourseTitle} Exam Papers`}</h4>
           <div>
             {resourceData.examPapers.map((examPaper, idx) => {
               return (

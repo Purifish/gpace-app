@@ -1,10 +1,8 @@
-import {
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  Radio,
-  RadioGroup,
-} from "@mui/material";
+import Checkbox from "@mui/material/Checkbox";
+import FormControl from "@mui/material/FormControl";
+import FormControlLabel from "@mui/material/FormControlLabel";
+import Radio from "@mui/material/Radio";
+import RadioGroup from "@mui/material/RadioGroup";
 import s from "./style.module.css";
 
 function QuizQuestion(props) {
@@ -48,7 +46,7 @@ function QuizQuestion(props) {
   return (
     <div className={`row justify-content-center`}>
       <div className={s.container}>
-        <h4 className={s.question}>{`${qnNumber}. ${question}`}</h4>
+        <h2 className={s.question}>{`${qnNumber}. ${question}`}</h2>
         {imageSrc !== "" && (
           <div>
             <img

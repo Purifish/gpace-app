@@ -6,7 +6,7 @@ function ExamResourse(props) {
   return (
     <div className={`card ${s.container}`}>
       <div className="card-body">
-        <h5 className="card-title">{title}</h5>
+        <h1 className={`card-title ${s.exam_title}`}>{title}</h1>
         <a
           type="button"
           target="_blank"

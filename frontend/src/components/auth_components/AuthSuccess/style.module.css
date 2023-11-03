@@ -22,6 +22,11 @@
   justify-content: center;
 }
 
+.message {
+  font-size: 1.5rem;
+  font-family: "Montserrat", sans-serif;
+}
+
 /* -------------------------- */
 /* CLASSES TO MAKE MODAL WORK */
 .hidden {

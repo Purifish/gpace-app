@@ -23,8 +23,8 @@ function TopicItem(props) {
         alt={topicName}
       />
       <div className="card-body">
-        <h5 className="card-title">{capitalizedTopic}</h5>
-        <p className="card-text">
+        <h2 className={`card-title ${s.module_name}`}>{capitalizedTopic}</h2>
+        <p className={`card-text ${s.module_description}`}>
           {`${description || "No description found for this course."}`}
         </p>
         <Button variant="outlined" onClick={exploreTopic}>

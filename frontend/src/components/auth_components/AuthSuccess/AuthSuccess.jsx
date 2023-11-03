@@ -1,10 +1,8 @@
-import React, { useContext, useEffect, useState } from "react";
+import React from "react";
 
 import s from "./style.module.css";
-import { AuthContext } from "../../../contexts/auth-context";
 
 function AuthSuccess(props) {
-  const auth = useContext(AuthContext);
   const { successMessage, closeModal } = props;
 
   return (
@@ -25,7 +23,7 @@ function AuthSuccess(props) {
         </button>
 
         <div className={`${s.message_container}`}>
-          <h3>{`${successMessage}`}</h3>
+          <h1 className={`${s.message}`}>{`${successMessage}`}</h1>
         </div>
       </div>
       {/* Background Blurrer */}

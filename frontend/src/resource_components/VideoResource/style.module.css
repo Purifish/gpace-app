@@ -1,3 +1,10 @@
-/* .container {
-  border-radius: 15px;
-} */
+.video_title {
+  font-size: 1.2rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: bold;
+}
+
+.video_desc {
+  font-size: 1rem;
+  font-family: "Roboto", sans-serif;
+}

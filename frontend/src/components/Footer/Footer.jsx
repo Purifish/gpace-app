@@ -22,12 +22,12 @@ function Footer() {
       >
         <Grid container spacing={2} justifyContent="center">
           <Grid item md={6} lg={4}>
-            <h5>About Us</h5>
-            <Typography variant="caption2">
+            <h1 className={`${s.heading}`}>About Us</h1>
+            <p className={`${s.about}`}>
               GPAce aims to assist Computer Science students ace their most
               feared modules. GPAce provides high-quality materials, including
               summary notes and quizzes.
-            </Typography>
+            </p>
 
             <Box
               sx={{
@@ -35,8 +35,8 @@ function Footer() {
                 color: "gray",
               }}
             >
-              <FacebookIcon sx={{ mr: 1 }} />
-              <TwitterIcon sx={{ mr: 1 }} />
+              <FacebookIcon sx={{ mr: 2 }} />
+              <TwitterIcon sx={{ mr: 2 }} />
               <InstagramIcon />
             </Box>
             <Box
