@@ -12,6 +12,7 @@ const courseSchema = new mongoose.Schema({
   image: { type: String, required: false } /* file path */,
   quizzes: [{ type: mongoose.Types.ObjectId, required: true, ref: "Quiz" }],
   notes: [{ type: mongoose.Types.ObjectId, required: true, ref: "Note" }],
+  faqs: [{ type: mongoose.Types.ObjectId, required: true, ref: "Faq" }],
   videos: [{ type: mongoose.Types.ObjectId, required: true, ref: "Video" }],
   examPapers: [
     { type: mongoose.Types.ObjectId, required: true, ref: "ExamPaper" },

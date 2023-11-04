@@ -12,7 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 import s from "./style.module.css";
 
-const resources = ["Notes", "Videos", "Quizzes", "Exams", "Tutors"];
+const resources = ["Notes", "Videos", "Quizzes", "Exams", "FAQ", "Tutors"];
 
 function SideBar() {
   const navigate = useNavigate();

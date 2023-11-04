@@ -10,6 +10,7 @@ const Video = require("../models/video");
 const Quiz = require("../models/quiz");
 const ExamPaper = require("../models/examPaper");
 const ExamSolution = require("../models/examSolution");
+const Faq = require("../models/faq");
 
 /* Done */
 const getCourses = async (req, res, next) => {
@@ -98,13 +99,14 @@ const getResourcesByCourseId = async (req, res, next) => {
   }
 
   // let quizQuestions;
-  let notes, videos, quizzes, examPapers, examSolutions;
+  let notes, videos, quizzes, examPapers, examSolutions, faqs;
   try {
     notes = await Note.find({ course: course._id });
     videos = await Video.find({ course: course._id });
     quizzes = await Quiz.find({ course: course._id });
     examPapers = await ExamPaper.find({ course: course._id });
     examSolutions = await ExamSolution.find({ course: course._id });
+    faqs = await Faq.find({ course: course._id });
   } catch (err) {
     return next(new HttpError("Error retrieving data from the DB", 500));
   }
@@ -124,6 +126,9 @@ const getResourcesByCourseId = async (req, res, next) => {
     }),
     examSolutions: examSolutions.map((examSolution) => {
       return examSolution.toObject({ getters: true });
+    }),
+    faqs: faqs.map((faq) => {
+      return faq.toObject({ getters: true });
     }),
     tutors: [],
   });

@@ -9,6 +9,7 @@ import NotesResource from "../NotesResource/NotesResource";
 import SideBar from "../../components/SideBar/SideBar";
 import VideoResource from "../VideoResource/VideoResource";
 import ExamResourse from "../ExamResource/ExamResource";
+import FaqResource from "../FaqResource/FaqResource";
 
 function ResourcePage(props) {
   const navigate = useNavigate();
@@ -32,6 +33,7 @@ function ResourcePage(props) {
       "videos",
       "tutors",
       "exams",
+      "faq",
     ];
     if (validResourceNames.indexOf(resourceType) === -1) {
       navigate("./../notes");
@@ -65,7 +67,8 @@ function ResourcePage(props) {
     !resourceData.notes ||
     !resourceData.videos ||
     !resourceData.examPapers ||
-    !resourceData.examSolutions
+    !resourceData.examSolutions ||
+    !resourceData.faqs
   ) {
     return (
       <div className="center">
@@ -96,6 +99,23 @@ function ResourcePage(props) {
           </div>
         </div>
       );
+    } else if (resourceType === "faq") {
+      return (
+        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
+          <h4 className={s.section_title}>{`${capitalizedCourseTitle} FAQ`}</h4>
+          <div>
+            {resourceData.faqs.map((faq, idx) => {
+              return (
+                <FaqResource
+                  key={`${courseTitle}-faq-${idx}`}
+                  question={faq.question}
+                  answer={faq.answer}
+                />
+              );
+            })}
+          </div>
+        </div>
+      );
     } else if (resourceType === "videos") {
       return (
         <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
@@ -106,7 +126,7 @@ function ResourcePage(props) {
             {resourceData.videos.map((video, idx) => {
               return (
                 <VideoResource
-                  key={`${courseTitle}-note-${idx}`}
+                  key={`${courseTitle}-vid-${idx}`}
                   title={video.title}
                   description={video.description}
                   videoLink={video.link}
