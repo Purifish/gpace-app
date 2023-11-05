@@ -15,15 +15,11 @@ root.render(
         <Route path="/" element={<App />}>
           <Route path="/" element={<TopicsBrowse />} />
           <Route
-            path="/resource/:courseTitle/:courseId/quizzes/quiz/:quizId"
+            path="/resource/:courseCode/quizzes/quiz/:quizId"
             element={<Quiz />}
           />
-          {/* <Route
-            path="/resource/:courseTitle/:courseId"
-            element={<ResourcePage />}
-          /> */}
           <Route
-            path="/resource/:courseTitle/:courseId/:resourceType"
+            path="/resource/:courseCode/:resourceType"
             element={<ResourcePage />}
           />
           {/*TODO: Add Page Not Found */}

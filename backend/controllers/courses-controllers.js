@@ -12,6 +12,51 @@ const ExamPaper = require("../models/examPaper");
 const ExamSolution = require("../models/examSolution");
 const Faq = require("../models/faq");
 
+const updateCourse = async (req, res, next) => {
+  const { courseCode, courseTitle, description } = req.body;
+  console.log(description);
+  let course;
+  try {
+    course = await Course.findById(req.params.courseId);
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong! could not update course.", 500)
+    );
+  }
+
+  if (!course) {
+    return next(new HttpError("Invalid course ID", 500));
+  }
+
+  if (courseCode) course.courseCode = courseCode;
+  if (description) course.description = description;
+  if (courseTitle) course.courseTitle = courseTitle.toLowerCase();
+
+  let oldFile;
+  if (req.file && req.file.path) {
+    oldFile = course.file;
+    course.file = file;
+  }
+
+  try {
+    await course.save();
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong, could not update course.", 500)
+    );
+  }
+
+  if (oldFile) {
+    fs.unlink(oldFile, (err) => {
+      console.log(err);
+    });
+  }
+
+  res.json({
+    course: course.toObject({ getters: true }),
+  });
+};
+
 /* Done */
 const getCourses = async (req, res, next) => {
   let courses;
@@ -87,7 +132,6 @@ const getResourcesByCourseId = async (req, res, next) => {
     } else {
       course = await Course.findOne({ courseTitle: courseTitle });
     }
-    // quiz = await Quiz.findOne({ topic: topic });
   } catch (err) {
     const error = new HttpError("Failed to access database! Try again.", 500);
     return next(error);
@@ -137,3 +181,4 @@ const getResourcesByCourseId = async (req, res, next) => {
 exports.createCourse = createCourse;
 exports.getCourses = getCourses;
 exports.getResourcesByCourseId = getResourcesByCourseId;
+exports.updateCourse = updateCourse;

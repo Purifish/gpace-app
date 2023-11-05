@@ -15,8 +15,22 @@ router.post(
   coursesControllers.createCourse
 );
 
-router.get("/:courseTitle", coursesControllers.getResourcesByCourseId);
+router.patch(
+  "/update/:courseId",
+  fileUpload.pdfUpload.any(),
+  coursesControllers.updateCourse
+);
 
-router.get("/id/:courseId", coursesControllers.getResourcesByCourseId);
+router.get(
+  "/:courseTitle",
+  fileUpload.pdfUpload.any(),
+  coursesControllers.getResourcesByCourseId
+);
+
+router.get(
+  "/id/:courseId",
+  fileUpload.pdfUpload.any(),
+  coursesControllers.getResourcesByCourseId
+);
 
 module.exports = router;

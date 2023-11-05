@@ -1,7 +1,7 @@
 import s from "./style.module.css";
 
 import QuizQuestion from "../QuizQuestion/QuizQuestion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 
 import Button from "@mui/material/Button";
@@ -9,6 +9,7 @@ import Button from "@mui/material/Button";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import QuizResult from "../QuizResult/QuizResult";
 import { useHttpClient } from "../../hooks/http-hook";
+import { CoursesContext } from "../../contexts/courses-context";
 
 function calculateMaxScore(questions) {
   let total = 0;
@@ -20,14 +21,23 @@ function calculateMaxScore(questions) {
 }
 
 function Quiz(props) {
-  const { isLoading, sendRequest } = useHttpClient();
-  // const topic = decodeURI(useParams().topicName);
-  const quizId = useParams().quizId;
+  const { sendRequest } = useHttpClient();
+  const { courses } = useContext(CoursesContext);
+  const courseCode = decodeURI(useParams().courseCode);
+  const quizIdx = useParams().quizId - 1;
+
+  const [quizId, setQuizId] = useState();
   const [userScore, setUserScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const [isSelected, setIsSelected] = useState();
   const [quizData, setQuizData] = useState([]);
   const [maxScore, setMaxScore] = useState(-1);
+
+  useEffect(() => {
+    if (courses && courses[courseCode]) {
+      setQuizId(courses[courseCode].quizzes[quizIdx]);
+    }
+  }, [courses, courseCode, quizIdx]);
 
   useEffect(() => {
     // fetch quiz data from backend first
@@ -50,18 +60,14 @@ function Quiz(props) {
 
         setQuizData(responseData);
         let temp = [];
-        // for (let i = 0; i < responseData.questions.length; i++) {
-        //   temp[i] = Array(responseData.questions[i].options.length).fill(false);
-        // }
         for (let question of responseData.questions) {
           temp.push(Array(question.options.length).fill(false));
         }
         setIsSelected(temp);
-        // setQuizData(data);
         setMaxScore(calculateMaxScore(responseData.questions));
       } catch (err) {}
     };
-    fetchQuestions();
+    quizId && fetchQuestions();
   }, [sendRequest, quizId]);
 
   if (maxScore === -1) {

@@ -6,8 +6,8 @@ import { useCallback, useState, useEffect } from "react";
 import AuthForm from "./components/auth_components/AuthForm/AuthForm";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
-import SideBar from "./components/SideBar/SideBar";
 import { AuthContext } from "./contexts/auth-context";
+import { CoursesContext } from "./contexts/courses-context";
 import AuthSuccess from "./components/auth_components/AuthSuccess/AuthSuccess";
 
 let logoutTimer;
@@ -16,6 +16,7 @@ function App() {
   // Set to true to display login modal
   const [authMode, setAuthMode] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [courses, setCourses] = useState({});
 
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
@@ -97,31 +98,38 @@ function App() {
   }, [login]);
 
   return (
-    <AuthContext.Provider
+    <CoursesContext.Provider
       value={{
-        isLoggedIn: !!token,
-        token: token,
-        userId: userId,
-        userName: userName,
-        successMessage: successMessage,
-        login: login,
-        logout: logout,
-        updateSuccessMessage: updateSuccessMessage,
+        courses,
+        setCourses,
       }}
     >
-      <div className={s.main_container} style={{ position: "relative" }}>
-        <Header openModal={openAuthModal} />
-        <AuthForm authMode={authMode} closeModal={closeAuthModal} />
-        <AuthSuccess
-          successMessage={successMessage}
-          closeModal={() => setSuccessMessage("")}
-        />
-        <div className={s.workspace}>
-          <Outlet />
+      <AuthContext.Provider
+        value={{
+          isLoggedIn: !!token,
+          token: token,
+          userId: userId,
+          userName: userName,
+          successMessage: successMessage,
+          login: login,
+          logout: logout,
+          updateSuccessMessage: updateSuccessMessage,
+        }}
+      >
+        <div className={s.main_container} style={{ position: "relative" }}>
+          <Header openModal={openAuthModal} />
+          <AuthForm authMode={authMode} closeModal={closeAuthModal} />
+          <AuthSuccess
+            successMessage={successMessage}
+            closeModal={() => setSuccessMessage("")}
+          />
+          <div className={s.workspace}>
+            <Outlet />
+          </div>
+          <Footer />
         </div>
-        <Footer />
-      </div>
-    </AuthContext.Provider>
+      </AuthContext.Provider>
+    </CoursesContext.Provider>
   );
 }
 

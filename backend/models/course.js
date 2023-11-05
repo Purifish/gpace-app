@@ -7,7 +7,7 @@ const courseSchema = new mongoose.Schema({
     required: true,
     unique: true,
   } /* e.g. Geography */,
-  courseCode: { type: String, required: false } /* e.g. CX3005 */,
+  courseCode: { type: String, required: true, unique: true } /* e.g. CX3005 */,
   description: { type: String, required: false },
   image: { type: String, required: false } /* file path */,
   quizzes: [{ type: mongoose.Types.ObjectId, required: true, ref: "Quiz" }],

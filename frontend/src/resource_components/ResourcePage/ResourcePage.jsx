@@ -1,7 +1,7 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 
 import s from "./style.module.css";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useHttpClient } from "../../hooks/http-hook";
 
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
@@ -11,19 +11,32 @@ import VideoResource from "../VideoResource/VideoResource";
 import ExamResourse from "../ExamResource/ExamResource";
 import FaqResource from "../FaqResource/FaqResource";
 
+import { CoursesContext } from "../../contexts/courses-context";
+
 function ResourcePage(props) {
   const navigate = useNavigate();
-  const courseTitle = decodeURI(useParams().courseTitle);
-  const capitalizedCourseTitle = courseTitle
-    .split(" ")
-    .map((word) => {
-      return word[0].toUpperCase() + word.substring(1);
-    })
-    .join(" ");
+  const { courses } = useContext(CoursesContext);
+  const courseCode = decodeURI(useParams().courseCode);
+  const [capitalizedCourseTitle, setCapitalizedCourseTitle] = useState();
+  const [courseId, setCourseId] = useState();
   const resourceType = decodeURI(useParams().resourceType);
-  const courseId = useParams().courseId;
+
   const { sendRequest } = useHttpClient();
   const [resourceData, setResourceData] = useState({});
+
+  useEffect(() => {
+    if (courses && courses[courseCode]) {
+      setCourseId(courses[courseCode]._id);
+      setCapitalizedCourseTitle(
+        courses[courseCode].courseTitle
+          .split(" ")
+          .map((word) => {
+            return word[0].toUpperCase() + word.substring(1);
+          })
+          .join(" ")
+      );
+    }
+  }, [courses, courseCode]);
 
   /* Re-direct to notes route if invalid resource path */
   useEffect(() => {
@@ -57,10 +70,11 @@ function ResourcePage(props) {
         setResourceData(responseData);
       } catch (err) {
         // TODO: handle error when fetching from backend
+        console.log(err.message);
       }
     };
-    fetchResources();
-  }, [sendRequest, courseId, courseTitle]);
+    courseId && fetchResources();
+  }, [sendRequest, courseId]);
 
   if (
     !resourceData ||
@@ -88,7 +102,7 @@ function ResourcePage(props) {
             {resourceData.notes.map((note, idx) => {
               return (
                 <NotesResource
-                  key={`${courseTitle}-note-${idx}`}
+                  key={`${capitalizedCourseTitle}-note-${idx}`}
                   title={note.title}
                   description={note.description}
                   notesLink={note.link}
@@ -107,7 +121,7 @@ function ResourcePage(props) {
             {resourceData.faqs.map((faq, idx) => {
               return (
                 <FaqResource
-                  key={`${courseTitle}-faq-${idx}`}
+                  key={`${capitalizedCourseTitle}-faq-${idx}`}
                   question={faq.question}
                   answer={faq.answer}
                 />
@@ -126,7 +140,7 @@ function ResourcePage(props) {
             {resourceData.videos.map((video, idx) => {
               return (
                 <VideoResource
-                  key={`${courseTitle}-vid-${idx}`}
+                  key={`${capitalizedCourseTitle}-vid-${idx}`}
                   title={video.title}
                   description={video.description}
                   videoLink={video.link}
@@ -146,13 +160,13 @@ function ResourcePage(props) {
           {resourceData.quizzes.map((quiz, idx) => {
             return (
               <div
-                key={`${courseTitle}-quiz-${idx}`}
+                key={`${capitalizedCourseTitle}-quiz-${idx}`}
                 style={{ marginBottom: "30px" }}
               >
                 <span>
                   {`Quiz ${idx + 1}: `}
                   <Link
-                    to={`quiz/${quiz.id}`}
+                    to={`quiz/${idx + 1}`}
                   >{`Try the ${quiz.title} quiz!`}</Link>
                 </span>
               </div>
@@ -178,7 +192,7 @@ function ResourcePage(props) {
             {resourceData.examPapers.map((examPaper, idx) => {
               return (
                 <ExamResourse
-                  key={`${courseTitle}-exampaper-${idx}`}
+                  key={`${capitalizedCourseTitle}-exampaper-${idx}`}
                   title={examPaper.title}
                   examLink={examPaper.link}
                   examFile={examPaper.file}
@@ -194,7 +208,7 @@ function ResourcePage(props) {
             {resourceData.examSolutions.map((examSolution, idx) => {
               return (
                 <ExamResourse
-                  key={`${courseTitle}-examsol-${idx}`}
+                  key={`${capitalizedCourseTitle}-examsol-${idx}`}
                   title={examSolution.title}
                   examLink={examSolution.link}
                   examFile={examSolution.file}
