@@ -10,6 +10,7 @@ import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import QuizResult from "../QuizResult/QuizResult";
 import { useHttpClient } from "../../hooks/http-hook";
 import { CoursesContext } from "../../contexts/courses-context";
+import PageNotFound from "../../pages/PageNotFound/PageNotFound";
 
 function calculateMaxScore(questions) {
   let total = 0;
@@ -22,7 +23,7 @@ function calculateMaxScore(questions) {
 
 function Quiz() {
   const { sendRequest } = useHttpClient();
-  const { courses } = useContext(CoursesContext);
+  const { courses, setCourses } = useContext(CoursesContext);
   const courseCode = decodeURI(useParams().courseCode);
   const quizIdx = useParams().quizId - 1;
 
@@ -34,10 +35,32 @@ function Quiz() {
   const [maxScore, setMaxScore] = useState(-1);
 
   useEffect(() => {
-    if (courses && courses[courseCode]) {
-      setQuizId(courses[courseCode].quizzes[quizIdx]);
+    // TODO: throttle
+    const fetchCourses = async () => {
+      try {
+        const response = await sendRequest(
+          `${process.env.REACT_APP_BACKEND_URL}/courses/`
+        );
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+          const temp = {};
+          for (const course of responseData.courses) {
+            temp[course.courseCode] = course;
+          }
+          setCourses(temp);
+        }
+      } catch (err) {}
+    };
+    if (!courses) {
+      fetchCourses();
+    } else if (courses[courseCode]) {
+      setQuizId(courses[courseCode].quizzes[quizIdx] || -1);
+    } else {
+      setQuizId(-1);
     }
-  }, [courses, courseCode, quizIdx]);
+  }, [courses, courseCode, quizIdx, sendRequest, setCourses]);
 
   useEffect(() => {
     // fetch quiz data from backend first
@@ -53,6 +76,7 @@ function Quiz() {
           throw new Error(responseData.message);
         }
 
+        // If the quiz has no questions
         if (!responseData.questions || responseData.questions.length === 0) {
           setMaxScore(0);
           return;
@@ -67,8 +91,12 @@ function Quiz() {
         setMaxScore(calculateMaxScore(responseData.questions));
       } catch (err) {}
     };
-    quizId && fetchQuestions();
+    quizId && quizId !== -1 && fetchQuestions();
   }, [sendRequest, quizId]);
+
+  if (quizId === -1) {
+    return <PageNotFound />;
+  }
 
   if (maxScore === -1) {
     return (

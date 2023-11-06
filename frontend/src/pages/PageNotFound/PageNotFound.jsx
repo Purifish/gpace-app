@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 import s from "./style.module.css";
 import mcCat from "../../assets/images/McCat.png";
@@ -21,9 +22,9 @@ function PageNotFound() {
         <img src={mcCat} className={`${s.img}`} alt={"McKitty"} />
       </div>
       <div className={`${s.container}`}>
-        <a className={`${s.home_link}`} href="/">
+        <Link to="/" className={`${s.home_link}`}>
           Homepage
-        </a>
+        </Link>
       </div>
     </div>
   );

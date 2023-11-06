@@ -6,3 +6,17 @@
   border-radius: 15px;
   background-color: white;
 }
+
+.congrats_message {
+  font-family: "Merriweather", sans-serif;
+  margin-bottom: 30px;
+}
+
+.question {
+  font-family: "Roboto", serif;
+  margin-bottom: 30px;
+}
+
+.home_link {
+  font-family: "Montserrat", serif;
+}

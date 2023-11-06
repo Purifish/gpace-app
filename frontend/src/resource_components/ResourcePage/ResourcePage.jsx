@@ -26,6 +26,7 @@ function ResourcePage() {
   const [resourceData, setResourceData] = useState();
 
   useEffect(() => {
+    // TODO: throttle
     const fetchCourses = async () => {
       try {
         const response = await sendRequest(
@@ -78,9 +79,6 @@ function ResourcePage() {
   useEffect(() => {
     const fetchResources = async () => {
       try {
-        if (!courseId || courseId === "INVALID") {
-          return;
-        }
         // get relevant data for the current course
         const response = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/courses/id/${courseId}`
@@ -98,7 +96,7 @@ function ResourcePage() {
         console.log(err.message);
       }
     };
-    courseId && fetchResources();
+    courseId && courseId !== "INVALID" && fetchResources();
   }, [sendRequest, courseId]);
 
   if (courseId === "INVALID") {
@@ -193,8 +191,8 @@ function ResourcePage() {
                 key={`${capitalizedCourseTitle}-quiz-${idx}`}
                 style={{ marginBottom: "30px" }}
               >
-                <span>
-                  {`Quiz ${idx + 1}: `}
+                <span className={`${s.quiz_link}`}>
+                  <b>{`Quiz ${idx + 1}: `}</b>
                   <Link
                     to={`quiz/${idx + 1}`}
                   >{`Try the ${quiz.title} quiz!`}</Link>
