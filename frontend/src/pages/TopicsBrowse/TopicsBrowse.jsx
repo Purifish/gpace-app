@@ -31,7 +31,7 @@ function TopicsBrowse(props) {
           for (const course of responseData.courses) {
             temp[course.courseCode] = course;
           }
-          setCourses({ ...temp });
+          setCourses(temp);
         }
       } catch (err) {}
     };

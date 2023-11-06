@@ -1,5 +1,5 @@
 import { createContext } from "react";
 
-const CoursesContext = createContext({});
+const CoursesContext = createContext();
 
 export { CoursesContext };

@@ -108,7 +108,9 @@ function AuthForm(props) {
         </button>
 
         <div className={`${s.title_container}`}>
-          <h3>{`GPAce ${isLoginMode ? "Login" : "Sign Up"}`}</h3>
+          <h1 className={`${s.auth_title}`}>{`GPAce ${
+            isLoginMode ? "Login" : "Sign Up"
+          }`}</h1>
         </div>
 
         <form onSubmit={authSubmitHandler}>
@@ -173,9 +175,9 @@ function AuthForm(props) {
           )}
 
           <div className={`${s.remark_container}`}>
-            <p>
+            <p className={`${s.remark}`}>
               {isLoginMode ? "No account yet? " : "Already have an account? "}
-              <a
+              <span
                 className={`${s.anchor}`}
                 onClick={() => {
                   setErrorMessage("");
@@ -183,7 +185,7 @@ function AuthForm(props) {
                 }}
               >
                 <u>{isLoginMode ? "Sign up" : "Log in"}</u>
-              </a>
+              </span>
             </p>
           </div>
 

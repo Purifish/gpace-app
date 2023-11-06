@@ -6,6 +6,7 @@ import { useHttpClient } from "../../hooks/http-hook";
 
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import NotesResource from "../NotesResource/NotesResource";
+import PageNotFound from "../../pages/PageNotFound/PageNotFound";
 import SideBar from "../../components/SideBar/SideBar";
 import VideoResource from "../VideoResource/VideoResource";
 import ExamResourse from "../ExamResource/ExamResource";
@@ -13,19 +14,38 @@ import FaqResource from "../FaqResource/FaqResource";
 
 import { CoursesContext } from "../../contexts/courses-context";
 
-function ResourcePage(props) {
+function ResourcePage() {
   const navigate = useNavigate();
-  const { courses } = useContext(CoursesContext);
+  const { courses, setCourses } = useContext(CoursesContext);
   const courseCode = decodeURI(useParams().courseCode);
   const [capitalizedCourseTitle, setCapitalizedCourseTitle] = useState();
   const [courseId, setCourseId] = useState();
   const resourceType = decodeURI(useParams().resourceType);
 
   const { sendRequest } = useHttpClient();
-  const [resourceData, setResourceData] = useState({});
+  const [resourceData, setResourceData] = useState();
 
   useEffect(() => {
-    if (courses && courses[courseCode]) {
+    const fetchCourses = async () => {
+      try {
+        const response = await sendRequest(
+          `${process.env.REACT_APP_BACKEND_URL}/courses/`
+        );
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+          const temp = {};
+          for (const course of responseData.courses) {
+            temp[course.courseCode] = course;
+          }
+          setCourses(temp);
+        }
+      } catch (err) {}
+    };
+    if (!courses) {
+      fetchCourses();
+    } else if (courses[courseCode]) {
       setCourseId(courses[courseCode]._id);
       setCapitalizedCourseTitle(
         courses[courseCode].courseTitle
@@ -35,8 +55,10 @@ function ResourcePage(props) {
           })
           .join(" ")
       );
+    } else {
+      setCourseId("INVALID");
     }
-  }, [courses, courseCode]);
+  }, [courses, courseCode, sendRequest, setCourses]);
 
   /* Re-direct to notes route if invalid resource path */
   useEffect(() => {
@@ -56,6 +78,9 @@ function ResourcePage(props) {
   useEffect(() => {
     const fetchResources = async () => {
       try {
+        if (!courseId || courseId === "INVALID") {
+          return;
+        }
         // get relevant data for the current course
         const response = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/courses/id/${courseId}`
@@ -76,13 +101,18 @@ function ResourcePage(props) {
     courseId && fetchResources();
   }, [sendRequest, courseId]);
 
+  if (courseId === "INVALID") {
+    return <PageNotFound />;
+  }
+
   if (
     !resourceData ||
-    !resourceData.notes ||
-    !resourceData.videos ||
-    !resourceData.examPapers ||
-    !resourceData.examSolutions ||
-    !resourceData.faqs
+    (resourceType === "notes" && !resourceData.notes) ||
+    (resourceType === "videos" && !resourceData.videos) ||
+    (resourceType === "quizzes" && !resourceData.quizzes) ||
+    (resourceType === "exams" && !resourceData.examPapers) ||
+    (resourceType === "exams" && !resourceData.examSolutions) ||
+    (resourceType === "faqs" && !resourceData.faqs)
   ) {
     return (
       <div className="center">

@@ -1,0 +1,30 @@
+.container {
+  padding-top: 20px;
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+}
+
+.main_text {
+  font-family: "Merriweater", serif;
+  /* font-weight: bold; */
+  font-size: 2.5rem;
+}
+
+.message {
+  font-family: "Montserrat", serif;
+  font-size: 1.4rem;
+  font-weight: 400;
+}
+
+.img {
+  height: 300px;
+  border-radius: 20px;
+}
+
+.home_link {
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.2rem;
+}

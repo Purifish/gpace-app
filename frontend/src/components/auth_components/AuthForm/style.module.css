@@ -16,6 +16,11 @@
   margin-bottom: 30px;
 }
 
+.auth_title {
+  font-size: 1.7rem;
+  font-family: "Merriweather", serif;
+}
+
 .input_container {
   margin-top: 25px;
   display: flex;
@@ -35,9 +40,13 @@
 }
 
 .remark_container {
-  font-size: 0.9rem;
   display: flex;
   justify-content: center;
+}
+
+.remark {
+  font-size: 0.9rem;
+  font-family: "Roboto", serif;
 }
 
 .anchor {

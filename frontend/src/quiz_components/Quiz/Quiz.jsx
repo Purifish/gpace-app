@@ -20,7 +20,7 @@ function calculateMaxScore(questions) {
   return total;
 }
 
-function Quiz(props) {
+function Quiz() {
   const { sendRequest } = useHttpClient();
   const { courses } = useContext(CoursesContext);
   const courseCode = decodeURI(useParams().courseCode);

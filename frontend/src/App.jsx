@@ -16,7 +16,7 @@ function App() {
   // Set to true to display login modal
   const [authMode, setAuthMode] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [courses, setCourses] = useState({});
+  const [courses, setCourses] = useState();
 
   const [token, setToken] = useState(null);
   const [userId, setUserId] = useState(null);
