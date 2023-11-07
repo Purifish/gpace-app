@@ -1,3 +1,10 @@
-/* .container {
-  border-radius: 15px;
-} */
+.notes_title {
+  font-size: 1.2rem;
+  font-family: "Montserrat", sans-serif;
+  font-weight: bold;
+}
+
+.notes_description {
+  font-size: 1rem;
+  font-family: "Roboto", sans-serif;
+}

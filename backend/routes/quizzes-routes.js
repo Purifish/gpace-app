@@ -15,7 +15,7 @@ router.post(
   quizzesControllers.createQuiz
 );
 
-router.post(
+router.patch(
   "/update/:quizId",
   fileUpload.imageUpload.any(),
   quizzesControllers.updateQuiz

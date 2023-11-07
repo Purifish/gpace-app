@@ -1,0 +1,35 @@
+.container {
+  position: absolute;
+  z-index: 10;
+  top: 70px;
+  bottom: 0;
+  width: 250px;
+  box-shadow: 2px 1px 4px 1px rgba(0, 0, 0, 0.4);
+  background-color: #232d3f;
+  color: white;
+}
+
+.btn_container {
+  position: absolute;
+  z-index: 12;
+  top: 50%;
+  /* font-weight: bold;
+  font-size: 1.4rem; */
+  background-color: darkgray;
+  /* padding: 6px; */
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.btn_collapse {
+  left: 0;
+}
+
+.btn_expand {
+  left: 250px;
+}
+
+/* .collapse_btn {
+  font-weight: bold;
+  background-color: darkgray;
+} */

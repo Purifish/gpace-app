@@ -8,6 +8,54 @@ const Course = require("../models/course");
 const Note = require("../models/note");
 const Video = require("../models/video");
 const Quiz = require("../models/quiz");
+const ExamPaper = require("../models/examPaper");
+const ExamSolution = require("../models/examSolution");
+const Faq = require("../models/faq");
+
+const updateCourse = async (req, res, next) => {
+  const { courseCode, courseTitle, description } = req.body;
+  console.log(description);
+  let course;
+  try {
+    course = await Course.findById(req.params.courseId);
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong! could not update course.", 500)
+    );
+  }
+
+  if (!course) {
+    return next(new HttpError("Invalid course ID", 500));
+  }
+
+  if (courseCode) course.courseCode = courseCode;
+  if (description) course.description = description;
+  if (courseTitle) course.courseTitle = courseTitle.toLowerCase();
+
+  let oldFile;
+  if (req.file && req.file.path) {
+    oldFile = course.file;
+    course.file = file;
+  }
+
+  try {
+    await course.save();
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong, could not update course.", 500)
+    );
+  }
+
+  if (oldFile) {
+    fs.unlink(oldFile, (err) => {
+      console.log(err);
+    });
+  }
+
+  res.json({
+    course: course.toObject({ getters: true }),
+  });
+};
 
 /* Done */
 const getCourses = async (req, res, next) => {
@@ -46,10 +94,13 @@ const createCourse = async (req, res, next) => {
   const newCourse = new Course({
     courseTitle: courseTitle,
     courseCode: req.body.courseCode || "",
+    description: req.body.description || "",
     image: req.file ? req.file.path : "",
     quizzes: [],
     notes: [],
     videos: [],
+    examPapers: [],
+    examSolutions: [],
   });
 
   try {
@@ -81,7 +132,6 @@ const getResourcesByCourseId = async (req, res, next) => {
     } else {
       course = await Course.findOne({ courseTitle: courseTitle });
     }
-    // quiz = await Quiz.findOne({ topic: topic });
   } catch (err) {
     const error = new HttpError("Failed to access database! Try again.", 500);
     return next(error);
@@ -92,12 +142,14 @@ const getResourcesByCourseId = async (req, res, next) => {
     return next(error);
   }
 
-  // let quizQuestions;
-  let notes, videos, quizzes;
+  let notes, videos, quizzes, examPapers, examSolutions, faqs;
   try {
     notes = await Note.find({ course: course._id });
     videos = await Video.find({ course: course._id });
     quizzes = await Quiz.find({ course: course._id });
+    examPapers = await ExamPaper.find({ course: course._id });
+    examSolutions = await ExamSolution.find({ course: course._id });
+    faqs = await Faq.find({ course: course._id });
   } catch (err) {
     return next(new HttpError("Error retrieving data from the DB", 500));
   }
@@ -112,6 +164,15 @@ const getResourcesByCourseId = async (req, res, next) => {
     quizzes: quizzes.map((quiz) => {
       return quiz.toObject({ getters: true });
     }),
+    examPapers: examPapers.map((examPaper) => {
+      return examPaper.toObject({ getters: true });
+    }),
+    examSolutions: examSolutions.map((examSolution) => {
+      return examSolution.toObject({ getters: true });
+    }),
+    faqs: faqs.map((faq) => {
+      return faq.toObject({ getters: true });
+    }),
     tutors: [],
   });
 };
@@ -119,3 +180,4 @@ const getResourcesByCourseId = async (req, res, next) => {
 exports.createCourse = createCourse;
 exports.getCourses = getCourses;
 exports.getResourcesByCourseId = getResourcesByCourseId;
+exports.updateCourse = updateCourse;

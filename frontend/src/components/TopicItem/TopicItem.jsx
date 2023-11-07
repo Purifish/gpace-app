@@ -3,18 +3,18 @@ import s from "./style.module.css";
 import logoImg from "../../assets/images/logo.png";
 
 function TopicItem(props) {
-  const { topicName, imgSrc, startQuiz } = props;
+  const { topicName, imgSrc, description, exploreTopic } = props;
   const capitalizedTopic = topicName
     .split(" ")
     .map((word) => {
-      return word[0].toUpperCase() + word.substr(1);
+      return word[0].toUpperCase() + word.substring(1);
     })
     .join(" ");
 
   let imagePath;
 
   imagePath = imgSrc ? `${process.env.REACT_APP_ASSET_URL}/${imgSrc}` : logoImg;
-  // console.log(imgSrc);
+
   return (
     <div className={`card ${s.container}`}>
       <img
@@ -23,12 +23,11 @@ function TopicItem(props) {
         alt={topicName}
       />
       <div className="card-body">
-        <h5 className="card-title">{capitalizedTopic}</h5>
-        <p className="card-text">
-          Some quick example text to build on the card title and make up the
-          bulk of the card's content.
+        <h2 className={`card-title ${s.module_name}`}>{capitalizedTopic}</h2>
+        <p className={`card-text ${s.module_description}`}>
+          {`${description || "No description found for this course."}`}
         </p>
-        <Button variant="outlined" onClick={startQuiz}>
+        <Button variant="outlined" onClick={exploreTopic}>
           Explore
         </Button>
       </div>

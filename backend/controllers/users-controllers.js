@@ -91,6 +91,7 @@ const signup = async (req, res, next) => {
   res.status(201).json({
     message: "Successfully signed up",
     userId: newUser.id,
+    name: newUser.name,
     email: newUser.email,
     privilege: newUser.privilege,
     token: token,
@@ -145,6 +146,7 @@ const login = async (req, res, next) => {
   res.json({
     userId: existingUser.id,
     email: existingUser.email,
+    name: existingUser.name,
     privilege: existingUser.privilege,
     token: token,
   });

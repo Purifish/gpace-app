@@ -1,79 +1,73 @@
 import s from "./style.module.css";
-import TopicItem from "../../components/TopicItem/TopicItem";
 
 import { useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
 
 // import logoImg from "../../assets/images/logo.png";
 // import mathImg from "../../assets/images/math.png";
 import { useHttpClient } from "../../hooks/http-hook";
-import { useContext, useEffect, useState } from "react";
-import { CurrentCourseContext } from "../../contexts/CurrentCourseContext";
-
-// const topicList = [
-//   {
-//     name: "Geography",
-//     img: logoImg,
-//     pathName: "geography",
-//   },
-//   {
-//     name: "C++",
-//     img: logoImg,
-//     pathName: "c++",
-//   },
-//   {
-//     name: "Maths",
-//     img: mathImg,
-//     pathName: "math",
-//   },
-// ];
+import { CoursesContext } from "../../contexts/courses-context";
+import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
+import TopicItem from "../../components/TopicItem/TopicItem";
 
 function TopicsBrowse(props) {
   const navigate = useNavigate();
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
+  const { sendRequest } = useHttpClient();
   const [coursesList, setCoursesList] = useState();
-  const { currentCourse, setCurrentCourse } = useContext(CurrentCourseContext);
+  const { courses, setCourses } = useContext(CoursesContext);
 
   useEffect(() => {
     const fetchCourses = async () => {
       try {
-        const responseData = await sendRequest(
+        const response = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/courses/`
         );
-        setCoursesList(responseData.courses);
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+          setCoursesList(responseData.courses);
+          const temp = {};
+          for (const course of responseData.courses) {
+            temp[course.courseCode] = course;
+          }
+          setCourses(temp);
+        }
       } catch (err) {}
     };
     fetchCourses();
-    setCurrentCourse({
-      courseTitle: "",
-      courseId: "",
-    });
-  }, [sendRequest, setCurrentCourse]);
+  }, [sendRequest, setCourses]);
+
+  if (!courses || !coursesList) {
+    return (
+      <div className="center">
+        <LoadingSpinner asOverlay />
+      </div>
+    );
+  }
 
   return (
-    coursesList && (
-      <div className={`row justify-content-center`}>
-        {coursesList.map((courseItem, idx) => {
-          return (
-            <div
-              key={`courseList${idx}`}
-              className={`${s.card_container} col-sm-12 col-md-4 col-lg-3`}
-            >
-              <TopicItem
-                topicName={courseItem.courseTitle}
-                imgSrc={courseItem.image}
-                startQuiz={() =>
-                  navigate(
-                    `/resources/${encodeURIComponent(courseItem.courseTitle)}/${
-                      courseItem.id
-                    }`
-                  )
-                }
-              />
-            </div>
-          );
-        })}
-      </div>
-    )
+    <div className={`row justify-content-center ${s.course_list_container}`}>
+      {coursesList.map((courseItem, idx) => {
+        return (
+          <div
+            key={`courseList${idx}`}
+            className={`${s.card_container} col-sm-12 col-md-4 col-lg-3`}
+          >
+            <TopicItem
+              topicName={courses[courseItem.courseCode].courseTitle}
+              imgSrc={courseItem.image}
+              description={courseItem.description}
+              exploreTopic={() =>
+                navigate(
+                  `/resource/${encodeURIComponent(courseItem.courseCode)}/notes`
+                )
+              }
+            />
+          </div>
+        );
+      })}
+    </div>
   );
 }
 

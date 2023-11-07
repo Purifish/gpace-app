@@ -2,6 +2,64 @@ const HttpError = require("../models/http-error");
 const Course = require("../models/course");
 const Note = require("../models/note");
 const mongoose = require("mongoose");
+const fs = require("fs");
+
+const deleteNote = async (req, res, next) => {
+  const noteId = req.params.noteId;
+  let note;
+
+  try {
+    /* 
+      populates the "course" property with the actual course documents (not just ID)
+      Only works if the schemas are related with "ref"
+    */
+    note = await Note.findById(noteId).populate("course");
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong when accessing the DB", 500)
+    );
+  }
+
+  if (!note) {
+    return next(new HttpError("Invalid note ID", 404));
+  }
+
+  // TODO: Add authorization similar to below
+
+  // if (note.creator.id !== req.userData.userId) {
+  //   return next(
+  //     new HttpError("Error: User is not authorized to edit this place!", 401)
+  //   );
+  // }
+
+  const filePath = note.file;
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await Note.findByIdAndRemove(noteId, { session: sess });
+
+    /* Remove the note from notes list of the course */
+    note.course.notes.pull(note);
+    await note.course.save({ session: sess });
+
+    /* Remove the file associated with this note */
+    if (filePath) {
+      fs.unlink(filePath, (err) => {
+        console.log(err);
+      });
+    }
+
+    await sess.commitTransaction();
+  } catch (err) {
+    return next(new HttpError("Something went wrong!", 500));
+  }
+
+  res.json({
+    message: "Deleted note successfully!",
+    noteId: noteId,
+  });
+};
 
 /*
   TODO: allow file/link remove (and ensure at least one file/link exists)
@@ -76,7 +134,7 @@ const createNote = async (req, res, next) => {
   const createdNote = new Note({
     title: title,
     description: description,
-    link: link,
+    link: link || "",
     file: req.file ? req.file.path : "",
     course: courseId,
   });
@@ -143,3 +201,4 @@ const createNote = async (req, res, next) => {
 exports.createNote = createNote;
 // exports.getNotesByCourse = getNotesByCourse;
 exports.updateNote = updateNote;
+exports.deleteNote = deleteNote;

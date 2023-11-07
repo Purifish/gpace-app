@@ -3,6 +3,54 @@ const Course = require("../models/course");
 const Video = require("../models/video");
 const mongoose = require("mongoose");
 
+const deleteVideo = async (req, res, next) => {
+  const videoId = req.params.videoId;
+  let video;
+
+  try {
+    /* 
+      populates the "course" property with the actual course documents (not just ID)
+      Only works if the schemas are related with "ref"
+    */
+    video = await Video.findById(videoId).populate("course");
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong when accessing the DB", 500)
+    );
+  }
+
+  if (!video) {
+    return next(new HttpError("Invalid video ID", 404));
+  }
+
+  // TODO: Add authorization similar to below
+
+  // if (note.creator.id !== req.userData.userId) {
+  //   return next(
+  //     new HttpError("Error: User is not authorized to edit this place!", 401)
+  //   );
+  // }
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await Video.findByIdAndRemove(videoId, { session: sess });
+
+    /* Remove the note from notes list of the course */
+    video.course.videos.pull(video);
+    await video.course.save({ session: sess });
+
+    await sess.commitTransaction();
+  } catch (err) {
+    return next(new HttpError("Something went wrong!", 500));
+  }
+
+  res.json({
+    message: "Deleted video resource successfully!",
+    videoId: videoId,
+  });
+};
+
 const updateVideo = async (req, res, next) => {
   const { title, description, link } = req.body;
 
@@ -95,3 +143,4 @@ const createVideo = async (req, res, next) => {
 
 exports.createVideo = createVideo;
 exports.updateVideo = updateVideo;
+exports.deleteVideo = deleteVideo;

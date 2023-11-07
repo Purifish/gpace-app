@@ -6,11 +6,11 @@ function VideoResource(props) {
   return (
     <div className={`card ${s.container}`}>
       <div className="card-body">
-        <h5 className="card-title">{title}</h5>
+        <h5 className={`card-title ${s.video_title}`}>{title}</h5>
         <a type="button" target="_blank" rel="noreferrer" href={videoLink}>
           Link
         </a>
-        <p className="card-text">{description}</p>
+        <p className={`card-text ${s.video_desc}`}>{description}</p>
       </div>
     </div>
   );

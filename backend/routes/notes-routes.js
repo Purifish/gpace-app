@@ -13,10 +13,16 @@ router.post(
   notesControllers.createNote
 );
 
-router.post(
+router.patch(
   "/update/:noteId",
   fileUpload.pdfUpload.single("pdf"),
   notesControllers.updateNote
+);
+
+router.delete(
+  "/delete/:noteId",
+  fileUpload.pdfUpload.any(),
+  notesControllers.deleteNote
 );
 
 // router.patch(

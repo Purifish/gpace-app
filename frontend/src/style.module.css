@@ -1,11 +1,12 @@
 .workspace {
-  padding: 30px;
+  min-height: 600px; /* Ensures the entire page is filled*/
 }
 
 .main_container {
   /* background-color: #0a2647; */
   background-color: #f5f7f8;
-  padding: auto; /*dummy data*/
+  /* padding: auto;  */
+  padding: auto 0;
 }
 
 body {

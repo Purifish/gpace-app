@@ -1,42 +1,16 @@
 import s from "./style.module.css";
 
 import QuizQuestion from "../QuizQuestion/QuizQuestion";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 
-// import Button from "react-bootstrap/Button";
 import Button from "@mui/material/Button";
 
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import QuizResult from "../QuizResult/QuizResult";
 import { useHttpClient } from "../../hooks/http-hook";
-
-// const data = {
-//   title: "Geography",
-//   questions: [
-//     {
-//       title: "What is the capital of China?",
-//       options: ["Shanghai", "Beijing", "Peking"],
-//       solution: [1], // must be in ascending order
-//       score: 2,
-//       type: "radio",
-//     },
-//     {
-//       title: "Which continent is the largest?",
-//       options: ["North America", "South America", "Asia", "Africa"],
-//       solution: [2],
-//       score: 2,
-//       type: "radio",
-//     },
-//     {
-//       title: "Which of these countries can be found in Asia?",
-//       options: ["Japan", "Germany", "Sudan", "Oman", "Laos"],
-//       solution: [0, 3, 4],
-//       score: 2,
-//       type: "checkbox",
-//     },
-//   ],
-// };
+import { CoursesContext } from "../../contexts/courses-context";
+import PageNotFound from "../../pages/PageNotFound/PageNotFound";
 
 function calculateMaxScore(questions) {
   let total = 0;
@@ -47,10 +21,13 @@ function calculateMaxScore(questions) {
   return total;
 }
 
-function Quiz(props) {
-  const { isLoading, error, sendRequest, clearError } = useHttpClient();
-  // const topic = decodeURI(useParams().topicName);
-  const quizId = useParams().quizId;
+function Quiz() {
+  const { sendRequest } = useHttpClient();
+  const { courses, setCourses } = useContext(CoursesContext);
+  const courseCode = decodeURI(useParams().courseCode);
+  const quizIdx = useParams().quizId - 1;
+
+  const [quizId, setQuizId] = useState();
   const [userScore, setUserScore] = useState(0);
   const [finished, setFinished] = useState(false);
   const [isSelected, setIsSelected] = useState();
@@ -58,13 +35,48 @@ function Quiz(props) {
   const [maxScore, setMaxScore] = useState(-1);
 
   useEffect(() => {
+    // TODO: throttle
+    const fetchCourses = async () => {
+      try {
+        const response = await sendRequest(
+          `${process.env.REACT_APP_BACKEND_URL}/courses/`
+        );
+
+        const responseData = await response.json();
+
+        if (response.ok) {
+          const temp = {};
+          for (const course of responseData.courses) {
+            temp[course.courseCode] = course;
+          }
+          setCourses(temp);
+        }
+      } catch (err) {}
+    };
+    if (!courses) {
+      fetchCourses();
+    } else if (courses[courseCode]) {
+      setQuizId(courses[courseCode].quizzes[quizIdx] || -1);
+    } else {
+      setQuizId(-1);
+    }
+  }, [courses, courseCode, quizIdx, sendRequest, setCourses]);
+
+  useEffect(() => {
     // fetch quiz data from backend first
     const fetchQuestions = async () => {
       try {
-        const responseData = await sendRequest(
+        const response = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/questions/${quizId}`
         );
 
+        const responseData = await response.json();
+
+        if (!response.ok) {
+          throw new Error(responseData.message);
+        }
+
+        // If the quiz has no questions
         if (!responseData.questions || responseData.questions.length === 0) {
           setMaxScore(0);
           return;
@@ -72,19 +84,19 @@ function Quiz(props) {
 
         setQuizData(responseData);
         let temp = [];
-        // for (let i = 0; i < responseData.questions.length; i++) {
-        //   temp[i] = Array(responseData.questions[i].options.length).fill(false);
-        // }
         for (let question of responseData.questions) {
           temp.push(Array(question.options.length).fill(false));
         }
         setIsSelected(temp);
-        // setQuizData(data);
         setMaxScore(calculateMaxScore(responseData.questions));
       } catch (err) {}
     };
-    fetchQuestions();
+    quizId && quizId !== -1 && fetchQuestions();
   }, [sendRequest, quizId]);
+
+  if (quizId === -1) {
+    return <PageNotFound />;
+  }
 
   if (maxScore === -1) {
     return (
@@ -183,11 +195,7 @@ function Quiz(props) {
           )}
         </>
       ) : (
-        <QuizResult
-          userScore={userScore}
-          maxScore={maxScore}
-          quizTopic={`topic`}
-        />
+        <QuizResult userScore={userScore} maxScore={maxScore} quizTopic={``} />
       )}
     </>
   );
