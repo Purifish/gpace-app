@@ -3,7 +3,9 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import s from "./style.module.css";
 import { useContext, useEffect, useState } from "react";
 import { useHttpClient } from "../../hooks/http-hook";
+import { useCapitalizer } from "../../hooks/capitalize-hook";
 
+import EmptyResource from "../EmptyResource/EmptyResource";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";
 import NotesResource from "../NotesResource/NotesResource";
 import PageNotFound from "../../pages/PageNotFound/PageNotFound";
@@ -23,6 +25,7 @@ function ResourcePage() {
   const resourceType = decodeURI(useParams().resourceType);
 
   const { sendRequest } = useHttpClient();
+  const { capitalizeWords } = useCapitalizer();
   const [resourceData, setResourceData] = useState();
 
   useEffect(() => {
@@ -49,17 +52,12 @@ function ResourcePage() {
     } else if (courses[courseCode]) {
       setCourseId(courses[courseCode]._id);
       setCapitalizedCourseTitle(
-        courses[courseCode].courseTitle
-          .split(" ")
-          .map((word) => {
-            return word[0].toUpperCase() + word.substring(1);
-          })
-          .join(" ")
+        capitalizeWords(courses[courseCode].courseTitle)
       );
     } else {
       setCourseId("INVALID");
     }
-  }, [courses, courseCode, sendRequest, setCourses]);
+  }, [courses, setCourses, courseCode, sendRequest, capitalizeWords]);
 
   /* Re-direct to notes route if invalid resource path */
   useEffect(() => {
@@ -103,15 +101,7 @@ function ResourcePage() {
     return <PageNotFound />;
   }
 
-  if (
-    !resourceData ||
-    (resourceType === "notes" && !resourceData.notes) ||
-    (resourceType === "videos" && !resourceData.videos) ||
-    (resourceType === "quizzes" && !resourceData.quizzes) ||
-    (resourceType === "exams" && !resourceData.examPapers) ||
-    (resourceType === "exams" && !resourceData.examSolutions) ||
-    (resourceType === "faqs" && !resourceData.faqs)
-  ) {
+  if (!resourceData) {
     return (
       <div className="center">
         <LoadingSpinner asOverlay />
@@ -119,15 +109,14 @@ function ResourcePage() {
     );
   }
 
-  function getAppropriateResource(resourceType) {
+  function foo(resourceType) {
     if (resourceType === "notes") {
       return (
-        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h1
-            className={s.section_title}
-          >{`${capitalizedCourseTitle} Notes`}</h1>
-          <div>
-            {resourceData.notes.map((note, idx) => {
+        <div>
+          {!resourceData.notes || resourceData.notes.length === 0 ? (
+            <EmptyResource resourceType="notes" />
+          ) : (
+            resourceData.notes.map((note, idx) => {
               return (
                 <NotesResource
                   key={`${capitalizedCourseTitle}-note-${idx}`}
@@ -137,16 +126,17 @@ function ResourcePage() {
                   notesFile={note.file}
                 />
               );
-            })}
-          </div>
+            })
+          )}
         </div>
       );
     } else if (resourceType === "faq") {
       return (
-        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4 className={s.section_title}>{`${capitalizedCourseTitle} FAQ`}</h4>
-          <div>
-            {resourceData.faqs.map((faq, idx) => {
+        <div>
+          {!resourceData.faqs || resourceData.faqs.length === 0 ? (
+            <EmptyResource resourceType="FAQs" />
+          ) : (
+            resourceData.faqs.map((faq, idx) => {
               return (
                 <FaqResource
                   key={`${capitalizedCourseTitle}-faq-${idx}`}
@@ -154,18 +144,17 @@ function ResourcePage() {
                   answer={faq.answer}
                 />
               );
-            })}
-          </div>
+            })
+          )}
         </div>
       );
     } else if (resourceType === "videos") {
       return (
-        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4
-            className={s.section_title}
-          >{`${capitalizedCourseTitle} Videos`}</h4>
-          <div>
-            {resourceData.videos.map((video, idx) => {
+        <div>
+          {!resourceData.videos || resourceData.videos.length === 0 ? (
+            <EmptyResource resourceType="videos" />
+          ) : (
+            resourceData.videos.map((video, idx) => {
               return (
                 <VideoResource
                   key={`${capitalizedCourseTitle}-vid-${idx}`}
@@ -174,50 +163,43 @@ function ResourcePage() {
                   videoLink={video.link}
                 />
               );
-            })}
-          </div>
+            })
+          )}
         </div>
       );
     } else if (resourceType === "quizzes") {
       return (
-        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4
-            className={s.section_title}
-          >{`${capitalizedCourseTitle} Quizzes`}</h4>
-          <br></br>
-          {resourceData.quizzes.map((quiz, idx) => {
-            return (
-              <div
-                key={`${capitalizedCourseTitle}-quiz-${idx}`}
-                style={{ marginBottom: "30px" }}
-              >
-                <span className={`${s.quiz_link}`}>
-                  <b>{`Quiz ${idx + 1}: `}</b>
-                  <Link
-                    to={`quiz/${idx + 1}`}
-                  >{`Try the ${quiz.title} quiz!`}</Link>
-                </span>
-              </div>
-            );
-          })}
+        <div>
+          {!resourceData.quizzes || resourceData.quizzes.length === 0 ? (
+            <EmptyResource resourceType="quizzes" />
+          ) : (
+            resourceData.quizzes.map((quiz, idx) => {
+              return (
+                <div
+                  key={`${capitalizedCourseTitle}-quiz-${idx}`}
+                  style={{ marginBottom: "30px" }}
+                >
+                  <span className={`${s.quiz_link}`}>
+                    <b>{`Quiz ${idx + 1}: `}</b>
+                    <Link
+                      to={`quiz/${idx + 1}`}
+                    >{`Try the ${quiz.title} quiz!`}</Link>
+                  </span>
+                </div>
+              );
+            })
+          )}
         </div>
       );
     } else if (resourceType === "tutors") {
+      return <EmptyResource resourceType="tutors" />;
+    } else if (resourceType === "examPapers") {
       return (
-        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4
-            className={s.section_title}
-          >{`${capitalizedCourseTitle} Tutors`}</h4>
-        </div>
-      );
-    } else if (resourceType === "exams") {
-      return (
-        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
-          <h4
-            className={s.section_title}
-          >{`${capitalizedCourseTitle} Exam Papers`}</h4>
-          <div>
-            {resourceData.examPapers.map((examPaper, idx) => {
+        <div>
+          {!resourceData.examPapers || resourceData.examPapers.length === 0 ? (
+            <EmptyResource resourceType="exam papers" />
+          ) : (
+            resourceData.examPapers.map((examPaper, idx) => {
               return (
                 <ExamResourse
                   key={`${capitalizedCourseTitle}-exampaper-${idx}`}
@@ -226,14 +208,18 @@ function ResourcePage() {
                   examFile={examPaper.file}
                 />
               );
-            })}
-          </div>
-          <br></br>
-          <h4
-            className={s.section_title}
-          >{`${capitalizedCourseTitle} Exam Solutions`}</h4>
-          <div>
-            {resourceData.examSolutions.map((examSolution, idx) => {
+            })
+          )}
+        </div>
+      );
+    } else if (resourceType === "examSolutions") {
+      return (
+        <div>
+          {!resourceData.examSolutions ||
+          resourceData.examSolutions.length === 0 ? (
+            <EmptyResource resourceType="exam solutions" />
+          ) : (
+            resourceData.examSolutions.map((examSolution, idx) => {
               return (
                 <ExamResourse
                   key={`${capitalizedCourseTitle}-examsol-${idx}`}
@@ -242,8 +228,8 @@ function ResourcePage() {
                   examFile={examSolution.file}
                 />
               );
-            })}
-          </div>
+            })
+          )}
         </div>
       );
     }
@@ -253,7 +239,22 @@ function ResourcePage() {
     <div>
       <SideBar />
       <div className={`row justify-content-center`}>
-        {getAppropriateResource(resourceType)}
+        <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
+          <h4 className={s.section_title}>{`${capitalizedCourseTitle} ${
+            resourceType === "exams"
+              ? "Exam Papers"
+              : capitalizeWords(resourceType)
+          }`}</h4>
+          {foo(resourceType === "exams" ? "examPapers" : resourceType)}
+        </div>
+        {resourceType === "exams" && (
+          <div className={`${s.container} col-sm-12 col-md-8 col-lg-6`}>
+            <h4
+              className={s.section_title}
+            >{`${capitalizedCourseTitle} Exam Solutions`}</h4>
+            {foo("examSolutions")}
+          </div>
+        )}
       </div>
     </div>
   );

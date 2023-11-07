@@ -142,7 +142,6 @@ const getResourcesByCourseId = async (req, res, next) => {
     return next(error);
   }
 
-  // let quizQuestions;
   let notes, videos, quizzes, examPapers, examSolutions, faqs;
   try {
     notes = await Note.find({ course: course._id });
