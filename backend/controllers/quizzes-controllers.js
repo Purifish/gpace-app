@@ -1,11 +1,98 @@
-// const { validationResult } = require("express-validator");
-// const bcrypt = require("bcryptjs");
-// const jwt = require("jsonwebtoken");
-
 const HttpError = require("../models/http-error");
 const Quiz = require("../models/quiz");
+const Question = require("../models/question");
 const Course = require("../models/course");
+const { deleteAllQuestions } = require("../controllers/questions-controllers");
+
 const mongoose = require("mongoose");
+
+/**
+ * Helper function. DO NOT USE AS RESPONSE HANDLER
+ **/
+const deleteAllQuizzes = async (courseId, sess) => {
+  let course;
+
+  try {
+    course = await Course.findById(courseId);
+  } catch (err) {
+    console.log("Something went wrong when accessing the DB");
+    throw new HttpError("Something went wrong when accessing the DB", 500);
+  }
+
+  if (!course) {
+    console.log("Invalid course ID");
+    throw new HttpError("Invalid course ID", 404);
+  }
+
+  let quizzes;
+  let images = [];
+
+  try {
+    quizzes = await Quiz.find({ course: courseId });
+
+    // Delete all questions for each quiz
+    for (let quiz of quizzes) {
+      let quizImages = await deleteAllQuestions(quiz._id, sess);
+      images.push(...quizImages);
+    }
+
+    // Then delete all the quizzes
+    await Quiz.deleteMany({ course: courseId }, { session: sess });
+    return images;
+  } catch (err) {
+    console.log("Something went wrong when deleting questions x!");
+    throw new HttpError("Something went wrong!", 500);
+  }
+};
+
+const deleteQuiz = async (req, res, next) => {
+  const quizId = req.params.quizId;
+  let quiz;
+
+  try {
+    /* 
+      populates the "course" property with the actual course documents (not just ID)
+      Only works if the schemas are related with "ref"
+    */
+    quiz = await Quiz.findById(quizId).populate("course");
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong when accessing the DB", 500)
+    );
+  }
+
+  if (!quiz) {
+    return next(new HttpError("Invalid quiz ID", 404));
+  }
+
+  // TODO: Add authorization similar to below
+
+  // if (note.creator.id !== req.userData.userId) {
+  //   return next(
+  //     new HttpError("Error: User is not authorized to edit this place!", 401)
+  //   );
+  // }
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await Question.deleteMany({ quiz: quizId }, { session: sess });
+    await Quiz.findByIdAndRemove(quizId, { session: sess });
+
+    /* Remove the note from notes list of the course */
+    quiz.course.quizzes.pull(quiz);
+    await quiz.course.save({ session: sess });
+
+    await sess.commitTransaction();
+  } catch (err) {
+    return next(new HttpError("Something went wrong!", 500));
+  }
+
+  res.json({
+    message: "Deleted Quiz successfully!",
+    quizId: quizId,
+  });
+};
 
 const updateQuiz = async (req, res, next) => {
   const { title } = req.body;
@@ -123,3 +210,5 @@ const createQuiz = async (req, res, next) => {
 exports.createQuiz = createQuiz;
 exports.getQuizzesByCourseId = getQuizzesByCourseId;
 exports.updateQuiz = updateQuiz;
+exports.deleteQuiz = deleteQuiz;
+exports.deleteAllQuizzes = deleteAllQuizzes;

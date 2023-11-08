@@ -1,6 +1,8 @@
 // const { validationResult } = require("express-validator");
 // const bcrypt = require("bcryptjs");
 // const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
+const fs = require("fs");
 
 const HttpError = require("../models/http-error");
 
@@ -11,6 +13,91 @@ const Quiz = require("../models/quiz");
 const ExamPaper = require("../models/examPaper");
 const ExamSolution = require("../models/examSolution");
 const Faq = require("../models/faq");
+const { deleteAllQuizzes } = require("../controllers/quizzes-controllers");
+
+const deleteCourse = async (req, res, next) => {
+  const courseId = req.params.courseId;
+  let course;
+
+  try {
+    course = await Course.findById(courseId);
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong when accessing the DB", 500)
+    );
+  }
+
+  if (!course) {
+    return next(new HttpError("Invalid course ID", 404));
+  }
+
+  // TODO: Add authorization similar to below
+
+  // if (note.creator.id !== req.userData.userId) {
+  //   return next(
+  //     new HttpError("Error: User is not authorized to edit this place!", 401)
+  //   );
+  // }
+
+  let quizzes;
+  let quizImages;
+  const images = [];
+
+  try {
+    console.log("1");
+    quizzes = await Quiz.find({ course: course._id });
+    console.log("1");
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    console.log("2");
+    /* Delete all questions of all quizzes of this course */
+    // for (let curQuiz of quizzes) {
+    //   await Question.deleteMany({ quiz: curQuiz._id }, { session: sess });
+    // }
+
+    /* Delete all quizzes of this course */
+    quizImages = await deleteAllQuizzes(courseId, sess);
+    images.push(...quizImages);
+    console.log("4");
+    /* Delete all notes of this course */
+    await Note.deleteMany({ course: courseId }, { session: sess });
+
+    /* Delete all FAQs of this course */
+    await Faq.deleteMany({ course: courseId }, { session: sess });
+
+    /* Delete all videos of this course */
+    await Video.deleteMany({ course: courseId }, { session: sess });
+
+    /* Delete all exam papers of this course */
+    await ExamPaper.deleteMany({ course: courseId }, { session: sess });
+
+    /* Delete all exam solutions of this course */
+    await ExamSolution.deleteMany({ course: courseId }, { session: sess });
+
+    /* Finally, delete the course */
+    await Course.findByIdAndRemove(courseId, { session: sess });
+
+    if (course.image) {
+      images.push(course.image);
+    }
+
+    for (let filePath of images) {
+      fs.unlink(filePath, (err) => {
+        console.log(`Error removing file: ${err}`);
+      });
+    }
+
+    await sess.commitTransaction();
+  } catch (err) {
+    console.log(err.message);
+    return next(new HttpError("Something went wrong!", 500));
+  }
+
+  res.json({
+    message: "Deleted Course successfully!",
+    course: course,
+  });
+};
 
 const updateCourse = async (req, res, next) => {
   const { courseCode, courseTitle, description } = req.body;
@@ -181,3 +268,4 @@ exports.createCourse = createCourse;
 exports.getCourses = getCourses;
 exports.getResourcesByCourseId = getResourcesByCourseId;
 exports.updateCourse = updateCourse;
+exports.deleteCourse = deleteCourse;

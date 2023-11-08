@@ -4,6 +4,42 @@ const Question = require("../models/question");
 const mongoose = require("mongoose");
 const fs = require("fs");
 
+/**
+ * Helper function. DO NOT USE AS RESPONSE HANDLER
+ **/
+const deleteAllQuestions = async (quizId, sess) => {
+  let quiz;
+  try {
+    quiz = await Quiz.findById(quizId);
+  } catch (err) {
+    console.log("Something went wrong when accessing the DB");
+    throw new HttpError("Something went wrong when accessing the DB", 500);
+  }
+
+  if (!quiz) {
+    console.log("Invalid quiz ID");
+    throw new HttpError("Invalid quiz ID", 404);
+  }
+
+  let questions;
+  let images = [];
+
+  try {
+    questions = await Question.find({ quiz: quizId });
+    await Question.deleteMany({ quiz: quizId }, { session: sess });
+    for (let qn of questions) {
+      if (qn.image) {
+        images.push(qn.image);
+      }
+    }
+
+    return images;
+  } catch (err) {
+    console.log(`Something went wrong when deleting questions: ${err.message}`);
+    throw new HttpError("Something went wrong!", 500);
+  }
+};
+
 const deleteQuestion = async (req, res, next) => {
   const questionId = req.params.questionId;
   let question;
@@ -193,3 +229,4 @@ exports.createQuestion = createQuestion;
 exports.getQuestionsByQuizId = getQuestionsByQuizId;
 exports.updateQuestion = updateQuestion;
 exports.deleteQuestion = deleteQuestion;
+exports.deleteAllQuestions = deleteAllQuestions;

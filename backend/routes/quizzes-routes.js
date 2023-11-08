@@ -1,5 +1,4 @@
 const express = require("express");
-// const { check } = require("express-validator");
 
 const quizzesControllers = require("../controllers/quizzes-controllers");
 
@@ -21,16 +20,10 @@ router.patch(
   quizzesControllers.updateQuiz
 );
 
-// router.post(
-//   "/uploadtest",
-//   fileUpload.single("image"),
-//   async (req, res, next) => {
-//     console.log(req.file.path);
-//     res.status(201).json({
-//       message: "OK",
-//       image: req.file.path,
-//     });
-//   }
-// );
+router.delete(
+  "/delete/:quizId",
+  fileUpload.imageUpload.any(),
+  quizzesControllers.deleteQuiz
+);
 
 module.exports = router;

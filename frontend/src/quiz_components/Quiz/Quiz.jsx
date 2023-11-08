@@ -11,6 +11,7 @@ import QuizResult from "../QuizResult/QuizResult";
 import { useHttpClient } from "../../hooks/http-hook";
 import { CoursesContext } from "../../contexts/courses-context";
 import PageNotFound from "../../pages/PageNotFound/PageNotFound";
+import EmptyQuiz from "../EmptyQuiz/EmptyQuiz";
 
 function calculateMaxScore(questions) {
   let total = 0;
@@ -91,7 +92,10 @@ function Quiz() {
         setMaxScore(calculateMaxScore(responseData.questions));
       } catch (err) {}
     };
-    quizId && quizId !== -1 && fetchQuestions();
+
+    if (quizId && quizId !== -1) {
+      fetchQuestions();
+    }
   }, [sendRequest, quizId]);
 
   if (quizId === -1) {
@@ -151,12 +155,9 @@ function Quiz() {
         score += quizData.questions[r].score;
       }
     }
-
-    console.log(score);
     setUserScore(score);
   }
 
-  // console.log(isSelected);
   return (
     <>
       {!finished ? (
@@ -191,7 +192,7 @@ function Quiz() {
               </Button>
             </div>
           ) : (
-            <h2> No Questions For This Quiz! </h2>
+            <EmptyQuiz />
           )}
         </>
       ) : (

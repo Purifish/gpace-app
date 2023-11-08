@@ -32,4 +32,10 @@ router.get(
   coursesControllers.getResourcesByCourseId
 );
 
+router.delete(
+  "/delete/:courseId",
+  fileUpload.imageUpload.any(),
+  coursesControllers.deleteCourse
+);
+
 module.exports = router;
