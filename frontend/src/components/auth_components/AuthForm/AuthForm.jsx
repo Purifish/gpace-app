@@ -5,6 +5,7 @@ import { Button } from "@mui/material";
 import s from "./style.module.css";
 import { AuthContext } from "../../../contexts/auth-context";
 import { useHttpClient } from "../../../hooks/http-hook";
+import FileUpload from "../../FileUpload/FileUpload";
 
 function AuthForm(props) {
   const auth = useContext(AuthContext);
@@ -17,6 +18,7 @@ function AuthForm(props) {
     name: "",
     password: "",
     image: null,
+    file: null,
   });
 
   async function authSubmitHandler(event) {
@@ -55,12 +57,14 @@ function AuthForm(props) {
         setErrorMessage(err.message);
       }
     } else {
+      // Sign-up block
       try {
         const formData = new FormData();
         formData.append("email", formState.email);
         formData.append("name", formState.name);
         formData.append("password", formState.password);
         formData.append("image", formState.image);
+        formData.append("file", formState.file);
 
         const response = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/users/signup`,
@@ -167,6 +171,22 @@ function AuthForm(props) {
               }}
             />
           </div>
+
+          {!isLoginMode && (
+            <div className={`${s.input_container}`}>
+              <FileUpload
+                onInput={(pickedFile) => {
+                  console.log(pickedFile);
+                  setFormState((prev) => {
+                    return {
+                      ...prev,
+                      file: pickedFile,
+                    };
+                  });
+                }}
+              />
+            </div>
+          )}
 
           {errorMessage && (
             <div className={`${s.error_container}`}>
