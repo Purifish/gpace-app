@@ -1,8 +1,12 @@
+const fs = require("fs");
+
+const mongoose = require("mongoose");
+const uuid = require("uuid");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+
 const HttpError = require("../models/http-error");
 const Quiz = require("../models/quiz");
 const Question = require("../models/question");
-const mongoose = require("mongoose");
-const fs = require("fs");
 
 /**
  * Helper function. DO NOT USE AS RESPONSE HANDLER
@@ -119,7 +123,45 @@ const updateQuestion = async (req, res, next) => {
   if (solution) question.solution = JSON.parse(solution);
   if (score) question.score = score;
   if (type) question.type = type;
-  if (req.file) question.image = req.file.path;
+
+  let newFileName;
+
+  try {
+    if (req.file) {
+      if (
+        !process.env.R2_ACCESS_KEY_ID ||
+        !process.env.R2_SECRET_ACCESS_KEY ||
+        !process.env.ENDPOINT ||
+        !process.env.BUCKET_NAME
+      ) {
+        return next(new HttpError("Missing env vars, contact admin!", 404));
+      }
+      const S3 = new S3Client({
+        region: "auto",
+        endpoint: process.env.ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.R2_ACCESS_KEY_ID,
+          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+        },
+      });
+
+      newFileName = `${uuid.v1()}-${req.file.originalname}`;
+      await S3.send(
+        new PutObjectCommand({
+          Body: req.file.buffer,
+          Bucket: process.env.BUCKET_NAME,
+          Key: newFileName,
+          ContentType: req.file.mimetype,
+        })
+      );
+      question.image = `uploads/temp/${newFileName}`;
+    }
+  } catch (err) {
+    console.log(err.message);
+    return next(
+      new HttpError("Unknown error occurred, please try again later", 500)
+    );
+  }
 
   try {
     await question.save();
@@ -143,8 +185,6 @@ const createQuestion = async (req, res, next) => {
   /* Check that the quiz exists first*/
   try {
     quiz = await Quiz.findById(quizId);
-    // console.log(req.file);
-    // console.log(req.file.path);
   } catch (err) {
     const error = new HttpError("Failed to add question! Try again.", 500);
     return next(error);
@@ -155,13 +195,51 @@ const createQuestion = async (req, res, next) => {
     return next(error);
   }
 
+  let newFileName;
+
+  try {
+    if (req.file) {
+      if (
+        !process.env.R2_ACCESS_KEY_ID ||
+        !process.env.R2_SECRET_ACCESS_KEY ||
+        !process.env.ENDPOINT ||
+        !process.env.BUCKET_NAME
+      ) {
+        return next(new HttpError("Missing env vars, contact admin!", 404));
+      }
+      const S3 = new S3Client({
+        region: "auto",
+        endpoint: process.env.ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.R2_ACCESS_KEY_ID,
+          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+        },
+      });
+
+      newFileName = `${uuid.v1()}-${req.file.originalname}`;
+      await S3.send(
+        new PutObjectCommand({
+          Body: req.file.buffer,
+          Bucket: process.env.BUCKET_NAME,
+          Key: newFileName,
+          ContentType: req.file.mimetype,
+        })
+      );
+    }
+  } catch (err) {
+    console.log(err.message);
+    return next(
+      new HttpError("Unknown error occurred, please try again later", 500)
+    );
+  }
+
   const createdQuestion = new Question({
     title: title,
     options: JSON.parse(options),
     solution: JSON.parse(solution),
     score: score,
     type: type, // TODO: Add validation checks
-    image: req.file ? req.file.path : "",
+    image: req.file ? `uploads/temp/${newFileName}` : "",
     quiz: quizId,
   });
 

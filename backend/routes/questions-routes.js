@@ -9,13 +9,13 @@ router.get("/:quizId", questionControllers.getQuestionsByQuizId);
 
 router.post(
   "/create/:quizId",
-  fileUpload.imageUpload.single("image"),
+  fileUpload.cloudflareImageUpload.single("image"),
   questionControllers.createQuestion
 );
 
 router.patch(
   "/:questionId",
-  fileUpload.imageUpload.single("image"),
+  fileUpload.cloudflareImageUpload.single("image"),
   questionControllers.updateQuestion
 );
 

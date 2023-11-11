@@ -10,7 +10,8 @@ router.get("/", coursesControllers.getCourses);
 
 router.post(
   "/create",
-  fileUpload.imageUpload.single("image"),
+  // fileUpload.imageUpload.single("image"),
+  fileUpload.cloudflareImageUpload.single("image"),
   coursesControllers.createCourse
 );
 

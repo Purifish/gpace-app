@@ -9,13 +9,13 @@ const router = express.Router();
 
 router.post(
   "/create/:courseId",
-  fileUpload.pdfUpload.single("pdf"),
+  fileUpload.cloudflarePdfUpload.single("pdf"),
   notesControllers.createNote
 );
 
 router.patch(
   "/update/:noteId",
-  fileUpload.pdfUpload.single("pdf"),
+  fileUpload.cloudflarePdfUpload.single("pdf"),
   notesControllers.updateNote
 );
 
@@ -24,11 +24,5 @@ router.delete(
   fileUpload.pdfUpload.any(),
   notesControllers.deleteNote
 );
-
-// router.patch(
-//   "/:qid",
-//   fileUpload.single("image"),
-//   notesControllers.updateQuestion
-// );
 
 module.exports = router;

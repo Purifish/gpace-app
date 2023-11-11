@@ -1,11 +1,14 @@
+const fs = require("fs");
+
 // const { validationResult } = require("express-validator");
 // const bcrypt = require("bcryptjs");
 // const jwt = require("jsonwebtoken");
+
 const mongoose = require("mongoose");
-const fs = require("fs");
+const uuid = require("uuid");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const HttpError = require("../models/http-error");
-
 const Course = require("../models/course");
 const Note = require("../models/note");
 const Video = require("../models/video");
@@ -14,6 +17,91 @@ const ExamPaper = require("../models/examPaper");
 const ExamSolution = require("../models/examSolution");
 const Faq = require("../models/faq");
 const { deleteAllQuizzes } = require("../controllers/quizzes-controllers");
+
+/* Done */
+const createCourse = async (req, res, next) => {
+  const courseTitle = req.body.courseTitle.toLowerCase();
+  let existingCourse;
+
+  try {
+    existingCourse = await Course.findOne({ courseTitle: courseTitle });
+  } catch (err) {
+    console.log(err);
+    return next(
+      new HttpError("Creating course failed, please try again later", 500)
+    );
+  }
+
+  if (existingCourse) {
+    return next(
+      new HttpError("There is already a course with this title", 422)
+    );
+  }
+
+  let newFileName;
+  try {
+    if (req.file) {
+      if (
+        !process.env.R2_ACCESS_KEY_ID ||
+        !process.env.R2_SECRET_ACCESS_KEY ||
+        !process.env.ENDPOINT ||
+        !process.env.BUCKET_NAME
+      ) {
+        return next(new HttpError("Missing env vars, contact admin!", 404));
+      }
+      const S3 = new S3Client({
+        region: "auto",
+        endpoint: process.env.ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.R2_ACCESS_KEY_ID,
+          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+        },
+      });
+
+      newFileName = `${uuid.v1()}-${req.file.originalname}`;
+      await S3.send(
+        new PutObjectCommand({
+          Body: req.file.buffer,
+          Bucket: process.env.BUCKET_NAME,
+          Key: newFileName,
+          ContentType: req.file.mimetype,
+        })
+      );
+    }
+  } catch (err) {
+    console.log(err.message);
+    return next(
+      new HttpError("Unknown error occurred, please try again later", 500)
+    );
+  }
+
+  const newCourse = new Course({
+    courseTitle: courseTitle,
+    courseCode: req.body.courseCode || "",
+    description: req.body.description || "",
+    image: req.file ? `uploads/temp/${newFileName}` : "",
+    quizzes: [],
+    notes: [],
+    videos: [],
+    examPapers: [],
+    examSolutions: [],
+  });
+
+  try {
+    await newCourse.save();
+  } catch (err) {
+    const error = new HttpError(
+      "Failed to create course, try again later",
+      500
+    );
+    return next(error);
+  }
+
+  res.status(201).json({
+    message: "Successfully created new course",
+    courseId: newCourse.id,
+  });
+};
 
 const deleteCourse = async (req, res, next) => {
   const courseId = req.params.courseId;
@@ -155,54 +243,6 @@ const getCourses = async (req, res, next) => {
 
   res.json({
     courses: courses.map((course) => course.toObject({ getters: true })),
-  });
-};
-
-/* Done */
-const createCourse = async (req, res, next) => {
-  const courseTitle = req.body.courseTitle.toLowerCase();
-  let existingCourse;
-
-  try {
-    existingCourse = await Course.findOne({ courseTitle: courseTitle });
-  } catch (err) {
-    console.log(err);
-    return next(
-      new HttpError("Creating course failed, please try again later", 500)
-    );
-  }
-
-  if (existingCourse) {
-    return next(
-      new HttpError("There is already a course with this title", 422)
-    );
-  }
-
-  const newCourse = new Course({
-    courseTitle: courseTitle,
-    courseCode: req.body.courseCode || "",
-    description: req.body.description || "",
-    image: req.file ? req.file.path : "",
-    quizzes: [],
-    notes: [],
-    videos: [],
-    examPapers: [],
-    examSolutions: [],
-  });
-
-  try {
-    await newCourse.save();
-  } catch (err) {
-    const error = new HttpError(
-      "Failed to create course, try again later",
-      500
-    );
-    return next(error);
-  }
-
-  res.status(201).json({
-    message: "Successfully created new course",
-    courseId: newCourse.id,
   });
 };
 

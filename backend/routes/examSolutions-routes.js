@@ -7,13 +7,13 @@ const router = express.Router();
 
 router.post(
   "/create/:courseId",
-  fileUpload.pdfUpload.single("pdf"),
+  fileUpload.cloudflarePdfUpload.single("pdf"),
   examSolutionsControllers.createExamSolution
 );
 
 router.patch(
   "/update/:examSolutionId",
-  fileUpload.pdfUpload.single("pdf"),
+  fileUpload.cloudflarePdfUpload.single("pdf"),
   examSolutionsControllers.updateExamSolution
 );
 

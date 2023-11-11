@@ -1,8 +1,12 @@
+const fs = require("fs");
+
+const mongoose = require("mongoose");
+const uuid = require("uuid");
+const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+
 const HttpError = require("../models/http-error");
 const Course = require("../models/course");
 const ExamPaper = require("../models/examPaper");
-const mongoose = require("mongoose");
-const fs = require("fs");
 
 const deleteExamPaper = async (req, res, next) => {
   const examPaperId = req.params.examPaperId;
@@ -83,10 +87,44 @@ const updateExamPaper = async (req, res, next) => {
   if (title) examPaper.title = title;
   if (link) examPaper.link = link;
 
-  let oldFile;
-  if (req.file && req.file.path) {
-    oldFile = examPaper.file;
-    examPaper.file = file;
+  let newFileName;
+
+  try {
+    if (req.file) {
+      if (
+        !process.env.R2_ACCESS_KEY_ID ||
+        !process.env.R2_SECRET_ACCESS_KEY ||
+        !process.env.ENDPOINT ||
+        !process.env.BUCKET_NAME
+      ) {
+        return next(new HttpError("Missing env vars, contact admin!", 404));
+      }
+      const S3 = new S3Client({
+        region: "auto",
+        endpoint: process.env.ENDPOINT,
+        credentials: {
+          accessKeyId: process.env.R2_ACCESS_KEY_ID,
+          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+        },
+      });
+
+      newFileName = `${uuid.v1()}-${req.file.originalname}`;
+      await S3.send(
+        new PutObjectCommand({
+          Body: req.file.buffer,
+          Bucket: process.env.BUCKET_NAME,
+          Key: newFileName,
+          ContentType: req.file.mimetype,
+        })
+      );
+
+      examPaper.file = `uploads/temp/${newFileName}`;
+    }
+  } catch (err) {
+    console.log(err.message);
+    return next(
+      new HttpError("Unknown error occurred, please try again later", 500)
+    );
   }
 
   try {
@@ -95,12 +133,6 @@ const updateExamPaper = async (req, res, next) => {
     return next(
       new HttpError("Something went wrong, could not update exam paper.", 500)
     );
-  }
-
-  if (oldFile) {
-    fs.unlink(oldFile, (err) => {
-      console.log(err);
-    });
   }
 
   res.json({
@@ -129,14 +161,45 @@ const createExamPaper = async (req, res, next) => {
     return next(error);
   }
 
-  if (!link && (!req.file || !req.file.path)) {
+  if (!link && !req.file) {
     return next(new HttpError("Provide a link or a file!", 422));
+  }
+
+  let newFileName;
+
+  if (req.file) {
+    if (
+      !process.env.R2_ACCESS_KEY_ID ||
+      !process.env.R2_SECRET_ACCESS_KEY ||
+      !process.env.ENDPOINT ||
+      !process.env.BUCKET_NAME
+    ) {
+      return next(new HttpError("Missing env vars, contact admin!", 404));
+    }
+    const S3 = new S3Client({
+      region: "auto",
+      endpoint: process.env.ENDPOINT,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+      },
+    });
+
+    newFileName = `${uuid.v1()}-${req.file.originalname}`;
+    await S3.send(
+      new PutObjectCommand({
+        Body: req.file.buffer,
+        Bucket: process.env.BUCKET_NAME,
+        Key: newFileName,
+        ContentType: req.file.mimetype,
+      })
+    );
   }
 
   const createdExamPaper = new ExamPaper({
     title: title,
     link: link || "",
-    file: req.file ? req.file.path : "",
+    file: req.file ? `uploads/temp/${newFileName}` : "",
     course: courseId,
   });
 

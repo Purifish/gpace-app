@@ -12,26 +12,6 @@ function Logo(props) {
 
   const { sendRequest } = useHttpClient();
 
-  // TODO: Remove after done with test
-  async function foo() {
-    try {
-      const response = await sendRequest(
-        `${process.env.REACT_APP_BACKEND_URL}/users/test`
-      );
-
-      const responseData = await response.json();
-
-      if (!response.ok) {
-        console.log("baddd");
-      } else {
-        console.log(responseData);
-      }
-    } catch (err) {
-      // setErrorMessage(err.message);
-      console.log(err.message);
-    }
-  }
-
   function navigateToHome() {
     navigate("/");
   }
@@ -40,7 +20,7 @@ function Logo(props) {
     <div className={s.container}>
       {/* <img className={s.img} src={image} alt="logo" onClick={navigateToHome} /> */}
       <AutoAwesomeOutlinedIcon className={s.img} onClick={navigateToHome} />
-      <div className={s.logo_text} onClick={foo}>
+      <div className={s.logo_text} onClick={navigateToHome}>
         {title}
       </div>
     </div>
