@@ -5,7 +5,6 @@ const bodyParser = require("body-parser");
 const express = require("express");
 const mongoose = require("mongoose");
 const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
-const { writeFile } = require("node:fs/promises");
 
 const examPapersRoutes = require("./routes/examPapers-routes");
 const examSolutionRoutes = require("./routes/examSolutions-routes");
@@ -40,6 +39,7 @@ app.use((req, res, next) => {
   next();
 });
 
+/* For serving files */
 app.get("/uploads/temp/:fileName", async (req, res, next) => {
   if (
     !process.env.R2_ACCESS_KEY_ID ||
@@ -53,7 +53,6 @@ app.get("/uploads/temp/:fileName", async (req, res, next) => {
   const fileName = req.params.fileName;
 
   let response;
-  let buf;
 
   try {
     S3 = new S3Client({
@@ -72,9 +71,14 @@ app.get("/uploads/temp/:fileName", async (req, res, next) => {
       })
     );
 
-    await writeFile(`uploads/temp/${fileName}`, response.Body);
+    const fileStream = response.Body;
+    let fileBuffer = Buffer.from([]);
 
-    res.sendFile(`${__dirname}/uploads/temp/${fileName}`);
+    for await (const chunk of fileStream) {
+      fileBuffer = Buffer.concat([fileBuffer, chunk]);
+    }
+
+    res.send(fileBuffer);
   } catch (err) {
     console.log(err.message);
     return next(new HttpError("bad!", 404));

@@ -17,7 +17,7 @@ function AuthForm(props) {
     email: "",
     name: "",
     password: "",
-    image: null,
+    // image: null,
     file: null,
   });
 
@@ -63,8 +63,7 @@ function AuthForm(props) {
         formData.append("email", formState.email);
         formData.append("name", formState.name);
         formData.append("password", formState.password);
-        formData.append("image", formState.image);
-        formData.append("file", formState.file);
+        formData.append("image", formState.file);
 
         const response = await sendRequest(
           `${process.env.REACT_APP_BACKEND_URL}/users/signup`,
