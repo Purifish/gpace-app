@@ -2,11 +2,15 @@ const fs = require("fs");
 
 const mongoose = require("mongoose");
 const uuid = require("uuid");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+// const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const HttpError = require("../models/http-error");
 const Course = require("../models/course");
 const ExamPaper = require("../models/examPaper");
+const {
+  uploadFileToCloudflare,
+  deleteFileFromCloudflare,
+} = require("../middleware/file-upload");
 
 const deleteExamPaper = async (req, res, next) => {
   const examPaperId = req.params.examPaperId;
@@ -49,9 +53,10 @@ const deleteExamPaper = async (req, res, next) => {
 
     /* Remove the file associated with this note */
     if (filePath) {
-      fs.unlink(filePath, (err) => {
-        console.log(err);
-      });
+      await deleteFileFromCloudflare(filePath);
+      // fs.unlink(filePath, (err) => {
+      //   console.log(err);
+      // });
     }
 
     await sess.commitTransaction();
@@ -91,33 +96,11 @@ const updateExamPaper = async (req, res, next) => {
 
   try {
     if (req.file) {
-      if (
-        !process.env.R2_ACCESS_KEY_ID ||
-        !process.env.R2_SECRET_ACCESS_KEY ||
-        !process.env.ENDPOINT ||
-        !process.env.BUCKET_NAME
-      ) {
-        return next(new HttpError("Missing env vars, contact admin!", 404));
+      const oldFile = examPaper.file;
+      if (oldFile) {
+        await deleteFileFromCloudflare(oldFile);
       }
-      const S3 = new S3Client({
-        region: "auto",
-        endpoint: process.env.ENDPOINT,
-        credentials: {
-          accessKeyId: process.env.R2_ACCESS_KEY_ID,
-          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-        },
-      });
-
-      newFileName = `${uuid.v1()}-${req.file.originalname}`;
-      await S3.send(
-        new PutObjectCommand({
-          Body: req.file.buffer,
-          Bucket: process.env.BUCKET_NAME,
-          Key: newFileName,
-          ContentType: req.file.mimetype,
-        })
-      );
-
+      newFileName = await uploadFileToCloudflare(req.file);
       examPaper.file = `uploads/temp/${newFileName}`;
     }
   } catch (err) {
@@ -130,6 +113,7 @@ const updateExamPaper = async (req, res, next) => {
   try {
     await examPaper.save();
   } catch (err) {
+    // TODO: remove uploaded file
     return next(
       new HttpError("Something went wrong, could not update exam paper.", 500)
     );

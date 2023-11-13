@@ -23,4 +23,14 @@ router.delete(
   examSolutionsControllers.deleteExamSolution
 );
 
+// router.get("/testing", fileUpload.pdfUpload.any(), (req, res, next) => {
+//   let filePath =
+//     "uploads/temp/a3c7c630-807d-11ee-97f0-6353f1389d59-Kurzgesagt-HD-Wallpaper-1.png";
+//   filePath = filePath.split("/").at(-1);
+//   console.log(filePath);
+//   res.json({
+//     file: filePath,
+//   });
+// });
+
 module.exports = router;

@@ -6,7 +6,7 @@ const fs = require("fs");
 
 const mongoose = require("mongoose");
 const uuid = require("uuid");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
+// const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const HttpError = require("../models/http-error");
 const Course = require("../models/course");
@@ -17,6 +17,10 @@ const ExamPaper = require("../models/examPaper");
 const ExamSolution = require("../models/examSolution");
 const Faq = require("../models/faq");
 const { deleteAllQuizzes } = require("../controllers/quizzes-controllers");
+const {
+  uploadFileToCloudflare,
+  deleteFileFromCloudflare,
+} = require("../middleware/file-upload");
 
 /* Done */
 const createCourse = async (req, res, next) => {
@@ -41,32 +45,7 @@ const createCourse = async (req, res, next) => {
   let newFileName;
   try {
     if (req.file) {
-      if (
-        !process.env.R2_ACCESS_KEY_ID ||
-        !process.env.R2_SECRET_ACCESS_KEY ||
-        !process.env.ENDPOINT ||
-        !process.env.BUCKET_NAME
-      ) {
-        return next(new HttpError("Missing env vars, contact admin!", 404));
-      }
-      const S3 = new S3Client({
-        region: "auto",
-        endpoint: process.env.ENDPOINT,
-        credentials: {
-          accessKeyId: process.env.R2_ACCESS_KEY_ID,
-          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-        },
-      });
-
-      newFileName = `${uuid.v1()}-${req.file.originalname}`;
-      await S3.send(
-        new PutObjectCommand({
-          Body: req.file.buffer,
-          Bucket: process.env.BUCKET_NAME,
-          Key: newFileName,
-          ContentType: req.file.mimetype,
-        })
-      );
+      newFileName = await uploadFileToCloudflare(req.file);
     }
   } catch (err) {
     console.log(err.message);
@@ -132,17 +111,9 @@ const deleteCourse = async (req, res, next) => {
   const images = [];
 
   try {
-    console.log("1");
     quizzes = await Quiz.find({ course: course._id });
-    console.log("1");
     const sess = await mongoose.startSession();
     sess.startTransaction();
-    console.log("2");
-    /* Delete all questions of all quizzes of this course */
-    // for (let curQuiz of quizzes) {
-    //   await Question.deleteMany({ quiz: curQuiz._id }, { session: sess });
-    // }
-
     /* Delete all quizzes of this course */
     quizImages = await deleteAllQuizzes(courseId, sess);
     images.push(...quizImages);
@@ -207,13 +178,15 @@ const updateCourse = async (req, res, next) => {
   if (description) course.description = description;
   if (courseTitle) course.courseTitle = courseTitle.toLowerCase();
 
-  let oldFile;
-  if (req.file && req.file.path) {
-    oldFile = course.file;
-    course.file = file;
-  }
-
   try {
+    let oldFile;
+    if (req.file) {
+      oldFile = course.image;
+      let newFileName = await uploadFileToCloudflare(req.file);
+      course.image = `uploads/temp/${newFileName}`;
+      await deleteFileFromCloudflare(oldFile);
+    }
+
     await course.save();
   } catch (err) {
     return next(
@@ -221,11 +194,11 @@ const updateCourse = async (req, res, next) => {
     );
   }
 
-  if (oldFile) {
-    fs.unlink(oldFile, (err) => {
-      console.log(err);
-    });
-  }
+  // if (oldFile) {
+  //   fs.unlink(oldFile, (err) => {
+  //     console.log(err);
+  //   });
+  // }
 
   res.json({
     course: course.toObject({ getters: true }),

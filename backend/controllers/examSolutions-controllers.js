@@ -7,6 +7,10 @@ const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const HttpError = require("../models/http-error");
 const Course = require("../models/course");
 const ExamSolution = require("../models/examSolution");
+const {
+  uploadFileToCloudflare,
+  deleteFileFromCloudflare,
+} = require("../middleware/file-upload");
 
 const deleteExamSolution = async (req, res, next) => {
   const examSolutionId = req.params.examSolutionId;
@@ -38,7 +42,7 @@ const deleteExamSolution = async (req, res, next) => {
   //   );
   // }
 
-  const filePath = examSolution.file;
+  let filePath = examSolution.file;
 
   try {
     const sess = await mongoose.startSession();
@@ -51,9 +55,11 @@ const deleteExamSolution = async (req, res, next) => {
 
     /* Remove the file associated with this note */
     if (filePath) {
-      fs.unlink(filePath, (err) => {
-        console.log(err);
-      });
+      const fileName = filePath.split("/").at(-1);
+      deleteFileFromCloudflare(fileName);
+      // fs.unlink(filePath, (err) => {
+      //   console.log(err);
+      // });
     }
 
     await sess.commitTransaction();
@@ -96,32 +102,7 @@ const updateExamSolution = async (req, res, next) => {
 
   try {
     if (req.file) {
-      if (
-        !process.env.R2_ACCESS_KEY_ID ||
-        !process.env.R2_SECRET_ACCESS_KEY ||
-        !process.env.ENDPOINT ||
-        !process.env.BUCKET_NAME
-      ) {
-        return next(new HttpError("Missing env vars, contact admin!", 404));
-      }
-      const S3 = new S3Client({
-        region: "auto",
-        endpoint: process.env.ENDPOINT,
-        credentials: {
-          accessKeyId: process.env.R2_ACCESS_KEY_ID,
-          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-        },
-      });
-
-      newFileName = `${uuid.v1()}-${req.file.originalname}`;
-      await S3.send(
-        new PutObjectCommand({
-          Body: req.file.buffer,
-          Bucket: process.env.BUCKET_NAME,
-          Key: newFileName,
-          ContentType: req.file.mimetype,
-        })
-      );
+      newFileName = await uploadFileToCloudflare(req.file);
       examSolution.file = `uploads/temp/${newFileName}`;
     }
   } catch (err) {
@@ -176,32 +157,7 @@ const createExamSolution = async (req, res, next) => {
 
   try {
     if (req.file) {
-      if (
-        !process.env.R2_ACCESS_KEY_ID ||
-        !process.env.R2_SECRET_ACCESS_KEY ||
-        !process.env.ENDPOINT ||
-        !process.env.BUCKET_NAME
-      ) {
-        return next(new HttpError("Missing env vars, contact admin!", 404));
-      }
-      const S3 = new S3Client({
-        region: "auto",
-        endpoint: process.env.ENDPOINT,
-        credentials: {
-          accessKeyId: process.env.R2_ACCESS_KEY_ID,
-          secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-        },
-      });
-
-      newFileName = `${uuid.v1()}-${req.file.originalname}`;
-      await S3.send(
-        new PutObjectCommand({
-          Body: req.file.buffer,
-          Bucket: process.env.BUCKET_NAME,
-          Key: newFileName,
-          ContentType: req.file.mimetype,
-        })
-      );
+      newFileName = await uploadFileToCloudflare(req.file);
     }
   } catch (err) {
     console.log(err.message);

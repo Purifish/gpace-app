@@ -4,7 +4,10 @@ const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
-const { uploadFileToCloudflare } = require("../middleware/file-upload");
+const {
+  uploadFileToCloudflare,
+  deleteFileFromCloudflare,
+} = require("../middleware/file-upload");
 
 // const getUsers = async (req, res, next) => {
 //   let users;
@@ -81,6 +84,9 @@ const signup = async (req, res, next) => {
   try {
     await newUser.save();
   } catch (err) {
+    if (newFileName) {
+      await deleteFileFromCloudflare(newFileName);
+    }
     const error = new HttpError("Failed to create user, try again.", 500);
     return next(error);
   }
@@ -97,7 +103,7 @@ const signup = async (req, res, next) => {
       { expiresIn: "1h" } // expires after 1 hour
     );
   } catch (err) {
-    const error = new HttpError("Failed to create user, try again.", 500);
+    const error = new HttpError("Failed to log in user, try again.", 500);
     return next(error);
   }
 
