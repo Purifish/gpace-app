@@ -9,21 +9,6 @@ const {
   deleteFileFromCloudflare,
 } = require("../middleware/file-upload");
 
-// const getUsers = async (req, res, next) => {
-//   let users;
-
-//   try {
-//     /* Include all properites except "password" */
-//     users = await User.find({}, "-password");
-//   } catch (err) {
-//     return next(new HttpError("Error fetching users, try again later", 500));
-//   }
-
-//   res.json({
-//     users: users.map((user) => user.toObject({ getters: true })),
-//   });
-// };
-
 /* Done */
 const signup = async (req, res, next) => {
   /* Check validation result */
@@ -34,7 +19,6 @@ const signup = async (req, res, next) => {
   }
 
   const { name, email, password } = req.body;
-  // console.log(email);
 
   let existingUser;
 
@@ -167,6 +151,7 @@ const login = async (req, res, next) => {
     userId: existingUser.id,
     email: existingUser.email,
     name: existingUser.name,
+    image: existingUser.image,
     privilege: existingUser.privilege,
     token: token,
   });

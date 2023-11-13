@@ -47,7 +47,9 @@ function AuthForm(props) {
           auth.login(
             responseData.userId,
             responseData.name,
-            responseData.token
+            responseData.token,
+            null,
+            responseData.image
           );
           closeModal();
           setLoginMode(true);
@@ -79,7 +81,9 @@ function AuthForm(props) {
           auth.login(
             responseData.userId,
             responseData.name,
-            responseData.token
+            responseData.token,
+            null,
+            responseData.image
           );
           closeModal();
           setLoginMode(true);

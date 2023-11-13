@@ -5,8 +5,6 @@ const fs = require("fs");
 // const jwt = require("jsonwebtoken");
 
 const mongoose = require("mongoose");
-const uuid = require("uuid");
-// const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const HttpError = require("../models/http-error");
 const Course = require("../models/course");
@@ -22,7 +20,7 @@ const {
   deleteFileFromCloudflare,
 } = require("../middleware/file-upload");
 
-/* Done */
+/* Tested */
 const createCourse = async (req, res, next) => {
   const courseTitle = req.body.courseTitle.toLowerCase();
   let existingCourse;
@@ -160,7 +158,7 @@ const deleteCourse = async (req, res, next) => {
 
 const updateCourse = async (req, res, next) => {
   const { courseCode, courseTitle, description } = req.body;
-  console.log(description);
+
   let course;
   try {
     course = await Course.findById(req.params.courseId);
@@ -205,7 +203,7 @@ const updateCourse = async (req, res, next) => {
   });
 };
 
-/* Done */
+/* Tested */
 const getCourses = async (req, res, next) => {
   let courses;
   try {
@@ -219,7 +217,7 @@ const getCourses = async (req, res, next) => {
   });
 };
 
-/* Done */
+/* Tested */
 const getResourcesByCourseId = async (req, res, next) => {
   const courseId = req.params.courseId;
   const courseTitle = decodeURI(req.params.courseTitle);

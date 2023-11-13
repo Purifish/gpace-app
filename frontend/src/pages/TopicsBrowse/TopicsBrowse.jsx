@@ -3,8 +3,6 @@ import s from "./style.module.css";
 import { useNavigate } from "react-router-dom";
 import { useContext, useEffect, useState } from "react";
 
-// import logoImg from "../../assets/images/logo.png";
-// import mathImg from "../../assets/images/math.png";
 import { useHttpClient } from "../../hooks/http-hook";
 import { CoursesContext } from "../../contexts/courses-context";
 import LoadingSpinner from "../../components/LoadingSpinner/LoadingSpinner";

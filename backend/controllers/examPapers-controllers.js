@@ -1,8 +1,6 @@
 const fs = require("fs");
 
 const mongoose = require("mongoose");
-const uuid = require("uuid");
-// const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const HttpError = require("../models/http-error");
 const Course = require("../models/course");
@@ -124,6 +122,7 @@ const updateExamPaper = async (req, res, next) => {
   });
 };
 
+/* Tested */
 const createExamPaper = async (req, res, next) => {
   const courseId = req.params.courseId;
   const { title, link } = req.body;
@@ -151,33 +150,12 @@ const createExamPaper = async (req, res, next) => {
 
   let newFileName;
 
-  if (req.file) {
-    if (
-      !process.env.R2_ACCESS_KEY_ID ||
-      !process.env.R2_SECRET_ACCESS_KEY ||
-      !process.env.ENDPOINT ||
-      !process.env.BUCKET_NAME
-    ) {
-      return next(new HttpError("Missing env vars, contact admin!", 404));
+  try {
+    if (req.file) {
+      newFileName = await uploadFileToCloudflare(req.file);
     }
-    const S3 = new S3Client({
-      region: "auto",
-      endpoint: process.env.ENDPOINT,
-      credentials: {
-        accessKeyId: process.env.R2_ACCESS_KEY_ID,
-        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
-      },
-    });
-
-    newFileName = `${uuid.v1()}-${req.file.originalname}`;
-    await S3.send(
-      new PutObjectCommand({
-        Body: req.file.buffer,
-        Bucket: process.env.BUCKET_NAME,
-        Key: newFileName,
-        ContentType: req.file.mimetype,
-      })
-    );
+  } catch (err) {
+    return next(new HttpError("Unknown error occurred!!", 500));
   }
 
   const createdExamPaper = new ExamPaper({
@@ -199,6 +177,9 @@ const createExamPaper = async (req, res, next) => {
     console.log("2");
     await session.commitTransaction(); // all changes successful, commit them to the DB
   } catch (err) {
+    if (newFileName) {
+      await deleteFileFromCloudflare(newFileName);
+    }
     const error = new HttpError("Failed to create exam paper, try again.", 500);
     return next(error);
   }

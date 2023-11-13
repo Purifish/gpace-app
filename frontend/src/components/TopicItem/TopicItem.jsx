@@ -50,7 +50,13 @@ function TopicItem(props) {
       <div className="card-body">
         <h2 className={`card-title ${s.module_name}`}>{capitalizedTopic}</h2>
         <p className={`card-text ${s.module_description}`}>
-          {`${description || "No description found for this course."}`}
+          {`${
+            description
+              ? description.length > 140
+                ? `${description.substring(0, 140)}...`
+                : description
+              : "No description found for this course."
+          }`}
         </p>
         <Button variant="outlined" onClick={exploreTopic}>
           Explore

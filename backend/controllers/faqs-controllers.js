@@ -83,6 +83,7 @@ const updateFaq = async (req, res, next) => {
   });
 };
 
+/* Tested */
 const createFaq = async (req, res, next) => {
   const courseId = req.params.courseId;
   const { question, answer } = req.body;
@@ -114,7 +115,6 @@ const createFaq = async (req, res, next) => {
 
     await createdFaq.save({ session: session }); // remember to specify the session
     console.log("1");
-    // if (course.faqs)
     course.faqs.push(createdFaq); // only the ID is actually pushed
     await course.save({ session: session });
     console.log("2");
@@ -130,6 +130,5 @@ const createFaq = async (req, res, next) => {
 };
 
 exports.createFaq = createFaq;
-// exports.getNotesByCourse = getNotesByCourse;
 exports.updateFaq = updateFaq;
 exports.deleteFaq = deleteFaq;

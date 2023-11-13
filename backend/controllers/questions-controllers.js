@@ -158,7 +158,7 @@ const updateQuestion = async (req, res, next) => {
   });
 };
 
-/* Done */
+/* Tested */
 const createQuestion = async (req, res, next) => {
   const quizId = req.params.quizId;
   const { title, options, solution, score, type } = req.body;
@@ -203,15 +203,15 @@ const createQuestion = async (req, res, next) => {
   try {
     const session = await mongoose.startSession(); // start session
     session.startTransaction();
-    console.log("0");
 
     await createdQuestion.save({ session: session }); // remember to specify the session
-    console.log("1");
     quiz.questions.push(createdQuestion); // only the ID is actually pushed
     await quiz.save({ session: session });
-    console.log("2");
     await session.commitTransaction(); // all changes successful, commit them to the DB
   } catch (err) {
+    if (newFileName) {
+      await deleteFileFromCloudflare(newFileName);
+    }
     const error = new HttpError("Failed to create question, try again.", 500);
     return next(error);
   }

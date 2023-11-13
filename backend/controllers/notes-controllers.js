@@ -122,6 +122,7 @@ const updateNote = async (req, res, next) => {
   });
 };
 
+/* Tested */
 const createNote = async (req, res, next) => {
   const courseId = req.params.courseId;
   const { title, description, link } = req.body;
@@ -168,13 +169,11 @@ const createNote = async (req, res, next) => {
   try {
     const session = await mongoose.startSession(); // start session
     session.startTransaction();
-    console.log("0");
 
     await createdNote.save({ session: session }); // remember to specify the session
-    console.log("1");
+
     course.notes.push(createdNote); // only the ID is actually pushed
     await course.save({ session: session });
-    console.log("2");
     await session.commitTransaction(); // all changes successful, commit them to the DB
   } catch (err) {
     if (newFileName) {

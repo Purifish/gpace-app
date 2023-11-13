@@ -1,10 +1,10 @@
+const mongoose = require("mongoose");
+
 const HttpError = require("../models/http-error");
 const Quiz = require("../models/quiz");
 const Question = require("../models/question");
 const Course = require("../models/course");
 const { deleteAllQuestions } = require("../controllers/questions-controllers");
-
-const mongoose = require("mongoose");
 
 /**
  * Helper function. DO NOT USE AS RESPONSE HANDLER
@@ -15,12 +15,10 @@ const deleteAllQuizzes = async (courseId, sess) => {
   try {
     course = await Course.findById(courseId);
   } catch (err) {
-    console.log("Something went wrong when accessing the DB");
     throw new HttpError("Something went wrong when accessing the DB", 500);
   }
 
   if (!course) {
-    console.log("Invalid course ID");
     throw new HttpError("Invalid course ID", 404);
   }
 
@@ -144,7 +142,7 @@ const getQuizzesByCourseId = async (req, res, next) => {
   });
 };
 
-/* Done */
+/* Tested */
 const createQuiz = async (req, res, next) => {
   const courseId = req.params.courseId;
   const title = req.body.title.toLowerCase();
@@ -178,13 +176,10 @@ const createQuiz = async (req, res, next) => {
   try {
     const session = await mongoose.startSession(); // start session
     session.startTransaction();
-    console.log("0");
 
     await newQuiz.save({ session: session }); // remember to specify the session
-    console.log("1");
     course.quizzes.push(newQuiz); // only the ID is actually pushed
     await course.save({ session: session });
-    console.log("2");
     await session.commitTransaction(); // all changes successful, commit them to the DB
   } catch (err) {
     const error = new HttpError(
@@ -193,13 +188,6 @@ const createQuiz = async (req, res, next) => {
     );
     return next(error);
   }
-
-  // try {
-  //   await newQuiz.save();
-  // } catch (err) {
-  //   const error = new HttpError("Failed to create quiz, try again later", 500);
-  //   return next(error);
-  // }
 
   res.status(201).json({
     message: "Successfully created new quiz",

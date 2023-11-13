@@ -1,8 +1,6 @@
 const fs = require("fs");
 
 const mongoose = require("mongoose");
-const uuid = require("uuid");
-const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 
 const HttpError = require("../models/http-error");
 const Course = require("../models/course");
@@ -128,6 +126,7 @@ const updateExamSolution = async (req, res, next) => {
   });
 };
 
+/* Tested */
 const createExamSolution = async (req, res, next) => {
   const courseId = req.params.courseId;
   const { title, link } = req.body;
@@ -185,6 +184,9 @@ const createExamSolution = async (req, res, next) => {
     console.log("2");
     await session.commitTransaction(); // all changes successful, commit them to the DB
   } catch (err) {
+    if (newFileName) {
+      await deleteFileFromCloudflare(newFileName);
+    }
     const error = new HttpError(
       "Failed to create exam solution, try again.",
       500
