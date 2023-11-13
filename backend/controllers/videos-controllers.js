@@ -1,7 +1,8 @@
+const mongoose = require("mongoose");
+
 const HttpError = require("../models/http-error");
 const Course = require("../models/course");
 const Video = require("../models/video");
-const mongoose = require("mongoose");
 
 const deleteVideo = async (req, res, next) => {
   const videoId = req.params.videoId;
@@ -90,6 +91,7 @@ const updateVideo = async (req, res, next) => {
   });
 };
 
+/* Tested */
 const createVideo = async (req, res, next) => {
   const courseId = req.params.courseId;
   const { title, description, link } = req.body;
@@ -123,13 +125,10 @@ const createVideo = async (req, res, next) => {
   try {
     const session = await mongoose.startSession(); // start session
     session.startTransaction();
-    console.log("0");
 
     await createdVideoResource.save({ session: session }); // remember to specify the session
-    console.log("1");
     course.videos.push(createdVideoResource); // only the ID is actually pushed
     await course.save({ session: session });
-    console.log("2");
     await session.commitTransaction(); // all changes successful, commit them to the DB
   } catch (err) {
     const error = new HttpError("Failed to create note, try again.", 500);

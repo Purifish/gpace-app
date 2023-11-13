@@ -3,7 +3,10 @@ import FormControl from "@mui/material/FormControl";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Radio from "@mui/material/Radio";
 import RadioGroup from "@mui/material/RadioGroup";
+
 import s from "./style.module.css";
+import { useHttpClient } from "../../hooks/http-hook";
+import { useState, useEffect } from "react";
 
 function QuizQuestion(props) {
   const {
@@ -14,6 +17,28 @@ function QuizQuestion(props) {
     type, // radio or checkbox
     imageSrc,
   } = props;
+
+  const { sendRequest } = useHttpClient();
+  const [imageUrl, setImageUrl] = useState();
+
+  useEffect(() => {
+    const createTempUrl = async () => {
+      try {
+        const response = await sendRequest(
+          `${process.env.REACT_APP_ASSET_URL}/${imageSrc}`
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          setImageUrl(url);
+        }
+      } catch (err) {}
+    };
+    if (imageSrc) {
+      createTempUrl();
+    }
+  }, [imageSrc, sendRequest, setImageUrl]);
 
   const optionComponents = options.map((option, idx) => {
     return (
@@ -47,10 +72,11 @@ function QuizQuestion(props) {
     <div className={`row justify-content-center`}>
       <div className={s.container}>
         <h2 className={s.question}>{`${qnNumber}. ${question}`}</h2>
-        {imageSrc !== "" && (
+        {imageUrl && (
           <div>
             <img
-              src={`${process.env.REACT_APP_ASSET_URL}/${imageSrc}`}
+              src={imageUrl}
+              // src={`${process.env.REACT_APP_ASSET_URL}/${imageSrc}`}
               alt={`quiz question`}
               className={`${s.img}`}
             />

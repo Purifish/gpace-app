@@ -6,7 +6,7 @@ function EmptyResource(props) {
   const { capitalizeWords } = useCapitalizer();
 
   return (
-    <div className={`card ${s.container}`}>
+    <div className={`card`}>
       <div className="card-body">
         <h1 className={`card-title ${s.title}`}>{`No ${capitalizeWords(
           resourceType

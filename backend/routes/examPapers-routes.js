@@ -9,13 +9,13 @@ const router = express.Router();
 
 router.post(
   "/create/:courseId",
-  fileUpload.pdfUpload.single("pdf"),
+  fileUpload.cloudflarePdfUpload.single("pdf"),
   examPapersControllers.createExamPaper
 );
 
 router.patch(
   "/update/:examPaperId",
-  fileUpload.pdfUpload.single("pdf"),
+  fileUpload.cloudflarePdfUpload.single("pdf"),
   examPapersControllers.updateExamPaper
 );
 

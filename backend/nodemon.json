@@ -3,6 +3,11 @@
     "DB_USER": "purifish",
     "DB_PASSWORD": "Rdsprwb7658",
     "DB_NAME": "quiz_app",
-    "JWT_KEY": "supersecret_dont_share"
+    "JWT_KEY": "supersecret_dont_share",
+    "R2_ACCESS_KEY_ID": "c848858d1a58bd65cafc99ee26fd85af",
+    "R2_SECRET_ACCESS_KEY": "7227a74c49295d5dd7d17b738082d6e1778e7111b0b66d2d238cb93795ef6641",
+    "BUCKET_NAME": "gpace",
+    "ENDPOINT": "https://ca4d93765b55678449707ce254ee83fc.r2.cloudflarestorage.com",
+    "ACCOUNT_ID": "ca4d93765b55678449707ce254ee83fc"
   }
 }

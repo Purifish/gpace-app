@@ -1,11 +1,96 @@
-// const { validationResult } = require("express-validator");
-// const bcrypt = require("bcryptjs");
-// const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
 
 const HttpError = require("../models/http-error");
 const Quiz = require("../models/quiz");
+const Question = require("../models/question");
 const Course = require("../models/course");
-const mongoose = require("mongoose");
+const { deleteAllQuestions } = require("../controllers/questions-controllers");
+
+/**
+ * Helper function. DO NOT USE AS RESPONSE HANDLER
+ **/
+const deleteAllQuizzes = async (courseId, sess) => {
+  let course;
+
+  try {
+    course = await Course.findById(courseId);
+  } catch (err) {
+    throw new HttpError("Something went wrong when accessing the DB", 500);
+  }
+
+  if (!course) {
+    throw new HttpError("Invalid course ID", 404);
+  }
+
+  let quizzes;
+  let images = [];
+
+  try {
+    quizzes = await Quiz.find({ course: courseId });
+
+    // Delete all questions for each quiz
+    for (let quiz of quizzes) {
+      let quizImages = await deleteAllQuestions(quiz._id, sess);
+      images.push(...quizImages);
+    }
+
+    // Then delete all the quizzes
+    await Quiz.deleteMany({ course: courseId }, { session: sess });
+    return images;
+  } catch (err) {
+    console.log("Something went wrong when deleting questions x!");
+    throw new HttpError("Something went wrong!", 500);
+  }
+};
+
+const deleteQuiz = async (req, res, next) => {
+  const quizId = req.params.quizId;
+  let quiz;
+
+  try {
+    /* 
+      populates the "course" property with the actual course documents (not just ID)
+      Only works if the schemas are related with "ref"
+    */
+    quiz = await Quiz.findById(quizId).populate("course");
+  } catch (err) {
+    return next(
+      new HttpError("Something went wrong when accessing the DB", 500)
+    );
+  }
+
+  if (!quiz) {
+    return next(new HttpError("Invalid quiz ID", 404));
+  }
+
+  // TODO: Add authorization similar to below
+
+  // if (note.creator.id !== req.userData.userId) {
+  //   return next(
+  //     new HttpError("Error: User is not authorized to edit this place!", 401)
+  //   );
+  // }
+
+  try {
+    const sess = await mongoose.startSession();
+    sess.startTransaction();
+    await Question.deleteMany({ quiz: quizId }, { session: sess });
+    await Quiz.findByIdAndRemove(quizId, { session: sess });
+
+    /* Remove the note from notes list of the course */
+    quiz.course.quizzes.pull(quiz);
+    await quiz.course.save({ session: sess });
+
+    await sess.commitTransaction();
+  } catch (err) {
+    return next(new HttpError("Something went wrong!", 500));
+  }
+
+  res.json({
+    message: "Deleted Quiz successfully!",
+    quizId: quizId,
+  });
+};
 
 const updateQuiz = async (req, res, next) => {
   const { title } = req.body;
@@ -57,7 +142,7 @@ const getQuizzesByCourseId = async (req, res, next) => {
   });
 };
 
-/* Done */
+/* Tested */
 const createQuiz = async (req, res, next) => {
   const courseId = req.params.courseId;
   const title = req.body.title.toLowerCase();
@@ -91,13 +176,10 @@ const createQuiz = async (req, res, next) => {
   try {
     const session = await mongoose.startSession(); // start session
     session.startTransaction();
-    console.log("0");
 
     await newQuiz.save({ session: session }); // remember to specify the session
-    console.log("1");
     course.quizzes.push(newQuiz); // only the ID is actually pushed
     await course.save({ session: session });
-    console.log("2");
     await session.commitTransaction(); // all changes successful, commit them to the DB
   } catch (err) {
     const error = new HttpError(
@@ -106,13 +188,6 @@ const createQuiz = async (req, res, next) => {
     );
     return next(error);
   }
-
-  // try {
-  //   await newQuiz.save();
-  // } catch (err) {
-  //   const error = new HttpError("Failed to create quiz, try again later", 500);
-  //   return next(error);
-  // }
 
   res.status(201).json({
     message: "Successfully created new quiz",
@@ -123,3 +198,5 @@ const createQuiz = async (req, res, next) => {
 exports.createQuiz = createQuiz;
 exports.getQuizzesByCourseId = getQuizzesByCourseId;
 exports.updateQuiz = updateQuiz;
+exports.deleteQuiz = deleteQuiz;
+exports.deleteAllQuizzes = deleteAllQuizzes;

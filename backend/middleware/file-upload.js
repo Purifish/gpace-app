@@ -1,5 +1,10 @@
 const multer = require("multer");
 const uuid = require("uuid");
+const {
+  S3Client,
+  PutObjectCommand,
+  DeleteObjectCommand,
+} = require("@aws-sdk/client-s3");
 
 const IMAGE_MIME_TYPE_MAP = {
   "image/png": "png",
@@ -9,6 +14,70 @@ const IMAGE_MIME_TYPE_MAP = {
 
 const PDF_MIME_TYPE_MAP = {
   "application/pdf": "pdf",
+};
+
+const getS3Client = () => {
+  if (
+    !process.env.R2_ACCESS_KEY_ID ||
+    !process.env.R2_SECRET_ACCESS_KEY ||
+    !process.env.ENDPOINT ||
+    !process.env.BUCKET_NAME
+  ) {
+    throw new HttpError("Missing env vars, contact admin!", 404);
+  }
+
+  const S3 = new S3Client({
+    region: "auto",
+    endpoint: process.env.ENDPOINT,
+    credentials: {
+      accessKeyId: process.env.R2_ACCESS_KEY_ID,
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+    },
+  });
+
+  return S3;
+};
+
+/**
+ * Removes a file from a Cloudflare bucket
+ */
+const deleteFileFromCloudflare = async (fileName) => {
+  try {
+    const S3 = getS3Client();
+
+    await S3.send(
+      new DeleteObjectCommand({
+        Bucket: process.env.BUCKET_NAME,
+        Key: fileName,
+      })
+    );
+  } catch (err) {
+    throw err;
+  }
+};
+
+/**
+ * Uploads a file to Cloudflare
+ * @returns The name of the file uploaded
+ */
+const uploadFileToCloudflare = async (file) => {
+  try {
+    const S3 = getS3Client();
+    const newFileName = `${uuid.v1()}-${file.originalname}`;
+
+    await S3.send(
+      new PutObjectCommand({
+        Body: file.buffer,
+        Bucket: process.env.BUCKET_NAME,
+        Key: newFileName,
+        ContentType: file.mimetype,
+      })
+    );
+
+    return newFileName;
+  } catch (err) {
+    throw err;
+  }
 };
 
 const imageUpload = multer({
@@ -22,6 +91,26 @@ const imageUpload = multer({
       cb(null, uuid.v1() + "." + ext);
     },
   }),
+  fileFilter: (req, file, cb) => {
+    const isValid = !!IMAGE_MIME_TYPE_MAP[file.mimetype];
+    let error = isValid ? null : new Error("Invalid mime type!");
+    cb(error, isValid);
+  },
+});
+
+const cloudflarePdfUpload = multer({
+  limits: 5000000, // 5 MB limit
+  storage: multer.memoryStorage(),
+  fileFilter: (req, file, cb) => {
+    const isValid = !!PDF_MIME_TYPE_MAP[file.mimetype];
+    let error = isValid ? null : new Error("Invalid mime type!");
+    cb(error, isValid);
+  },
+});
+
+const cloudflareImageUpload = multer({
+  limits: 700000, // 5 MB limit
+  storage: multer.memoryStorage(),
   fileFilter: (req, file, cb) => {
     const isValid = !!IMAGE_MIME_TYPE_MAP[file.mimetype];
     let error = isValid ? null : new Error("Invalid mime type!");
@@ -48,3 +137,7 @@ const pdfUpload = multer({
 
 exports.imageUpload = imageUpload;
 exports.pdfUpload = pdfUpload;
+exports.cloudflarePdfUpload = cloudflarePdfUpload;
+exports.cloudflareImageUpload = cloudflareImageUpload;
+exports.uploadFileToCloudflare = uploadFileToCloudflare;
+exports.deleteFileFromCloudflare = deleteFileFromCloudflare;

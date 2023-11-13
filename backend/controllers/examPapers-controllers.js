@@ -1,8 +1,14 @@
+const fs = require("fs");
+
+const mongoose = require("mongoose");
+
 const HttpError = require("../models/http-error");
 const Course = require("../models/course");
 const ExamPaper = require("../models/examPaper");
-const mongoose = require("mongoose");
-const fs = require("fs");
+const {
+  uploadFileToCloudflare,
+  deleteFileFromCloudflare,
+} = require("../middleware/file-upload");
 
 const deleteExamPaper = async (req, res, next) => {
   const examPaperId = req.params.examPaperId;
@@ -45,9 +51,10 @@ const deleteExamPaper = async (req, res, next) => {
 
     /* Remove the file associated with this note */
     if (filePath) {
-      fs.unlink(filePath, (err) => {
-        console.log(err);
-      });
+      await deleteFileFromCloudflare(filePath);
+      // fs.unlink(filePath, (err) => {
+      //   console.log(err);
+      // });
     }
 
     await sess.commitTransaction();
@@ -83,24 +90,31 @@ const updateExamPaper = async (req, res, next) => {
   if (title) examPaper.title = title;
   if (link) examPaper.link = link;
 
-  let oldFile;
-  if (req.file && req.file.path) {
-    oldFile = examPaper.file;
-    examPaper.file = file;
+  let newFileName;
+
+  try {
+    if (req.file) {
+      const oldFile = examPaper.file;
+      if (oldFile) {
+        await deleteFileFromCloudflare(oldFile);
+      }
+      newFileName = await uploadFileToCloudflare(req.file);
+      examPaper.file = `uploads/temp/${newFileName}`;
+    }
+  } catch (err) {
+    console.log(err.message);
+    return next(
+      new HttpError("Unknown error occurred, please try again later", 500)
+    );
   }
 
   try {
     await examPaper.save();
   } catch (err) {
+    // TODO: remove uploaded file
     return next(
       new HttpError("Something went wrong, could not update exam paper.", 500)
     );
-  }
-
-  if (oldFile) {
-    fs.unlink(oldFile, (err) => {
-      console.log(err);
-    });
   }
 
   res.json({
@@ -108,6 +122,7 @@ const updateExamPaper = async (req, res, next) => {
   });
 };
 
+/* Tested */
 const createExamPaper = async (req, res, next) => {
   const courseId = req.params.courseId;
   const { title, link } = req.body;
@@ -129,14 +144,24 @@ const createExamPaper = async (req, res, next) => {
     return next(error);
   }
 
-  if (!link && (!req.file || !req.file.path)) {
+  if (!link && !req.file) {
     return next(new HttpError("Provide a link or a file!", 422));
+  }
+
+  let newFileName;
+
+  try {
+    if (req.file) {
+      newFileName = await uploadFileToCloudflare(req.file);
+    }
+  } catch (err) {
+    return next(new HttpError("Unknown error occurred!!", 500));
   }
 
   const createdExamPaper = new ExamPaper({
     title: title,
     link: link || "",
-    file: req.file ? req.file.path : "",
+    file: req.file ? `uploads/temp/${newFileName}` : "",
     course: courseId,
   });
 
@@ -152,6 +177,9 @@ const createExamPaper = async (req, res, next) => {
     console.log("2");
     await session.commitTransaction(); // all changes successful, commit them to the DB
   } catch (err) {
+    if (newFileName) {
+      await deleteFileFromCloudflare(newFileName);
+    }
     const error = new HttpError("Failed to create exam paper, try again.", 500);
     return next(error);
   }

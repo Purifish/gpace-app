@@ -14,7 +14,7 @@ function QuizResult(props) {
           className={`${s.question}`}
         >{`You scored ${userScore}/${maxScore}`}</p>
         <span className={`${s.home_link}`}>
-          <Link to={`./../..`}>Back to Resource page</Link>
+          <Link to={`./../..`}>Back to Resource Page</Link>
         </span>
       </div>
     </div>

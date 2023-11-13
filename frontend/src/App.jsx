@@ -22,6 +22,7 @@ function App() {
   const [userId, setUserId] = useState(null);
   const [userName, setUserName] = useState(null);
   const [tokenExpiry, setTokenExpiry] = useState();
+  const [profilePicture, setProfilePicture] = useState();
 
   const navigate = useNavigate();
 
@@ -33,10 +34,11 @@ function App() {
     setAuthMode(false);
   }
 
-  const login = useCallback((uid, userName, token, expirationDate) => {
+  const login = useCallback((uid, userName, token, expirationDate, image) => {
     setToken(token);
     setUserId(uid);
     setUserName(userName);
+    setProfilePicture(image);
 
     const tokenExpirationDate =
       expirationDate || new Date(new Date().getTime() + 1000 * 3600);
@@ -49,6 +51,7 @@ function App() {
         userId: uid,
         userName: userName,
         token: token,
+        profilePicture: image,
         expiration: tokenExpirationDate.toISOString(),
       })
     );
@@ -60,6 +63,7 @@ function App() {
     setTokenExpiry(null);
     setUserId(null);
     setUserName(null);
+    setProfilePicture(null);
     localStorage.removeItem("userData");
     setSuccessMessage("You have been logged out");
     navigate("/"); // redirect to homepage
@@ -92,7 +96,8 @@ function App() {
         storedData.userId,
         storedData.userName,
         storedData.token,
-        new Date(storedData.expiration)
+        new Date(storedData.expiration),
+        storedData.profilePicture
       );
     }
   }, [login]);
@@ -110,6 +115,7 @@ function App() {
           token: token,
           userId: userId,
           userName: userName,
+          profilePicture: profilePicture,
           successMessage: successMessage,
           login: login,
           logout: logout,

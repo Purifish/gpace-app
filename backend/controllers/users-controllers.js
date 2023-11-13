@@ -4,21 +4,10 @@ const jwt = require("jsonwebtoken");
 
 const HttpError = require("../models/http-error");
 const User = require("../models/user");
-
-// const getUsers = async (req, res, next) => {
-//   let users;
-
-//   try {
-//     /* Include all properites except "password" */
-//     users = await User.find({}, "-password");
-//   } catch (err) {
-//     return next(new HttpError("Error fetching users, try again later", 500));
-//   }
-
-//   res.json({
-//     users: users.map((user) => user.toObject({ getters: true })),
-//   });
-// };
+const {
+  uploadFileToCloudflare,
+  deleteFileFromCloudflare,
+} = require("../middleware/file-upload");
 
 /* Done */
 const signup = async (req, res, next) => {
@@ -30,7 +19,6 @@ const signup = async (req, res, next) => {
   }
 
   const { name, email, password } = req.body;
-  console.log(email);
 
   let existingUser;
 
@@ -55,10 +43,22 @@ const signup = async (req, res, next) => {
     return next(new HttpError("Error creating new user, try again later", 500));
   }
 
+  let newFileName;
+  try {
+    if (req.file) {
+      newFileName = await uploadFileToCloudflare(req.file);
+    }
+  } catch (err) {
+    console.log(err.message);
+    return next(
+      new HttpError("Unknown error occurred, please try again later", 500)
+    );
+  }
+
   const newUser = new User({
     name: name,
     email: email,
-    image: req.file ? req.file.path : "",
+    image: req.file ? `uploads/temp/${newFileName}` : "",
     password: hashedPassword,
     privilege: "user",
     notes: [],
@@ -68,6 +68,9 @@ const signup = async (req, res, next) => {
   try {
     await newUser.save();
   } catch (err) {
+    if (newFileName) {
+      await deleteFileFromCloudflare(newFileName);
+    }
     const error = new HttpError("Failed to create user, try again.", 500);
     return next(error);
   }
@@ -84,7 +87,7 @@ const signup = async (req, res, next) => {
       { expiresIn: "1h" } // expires after 1 hour
     );
   } catch (err) {
-    const error = new HttpError("Failed to create user, try again.", 500);
+    const error = new HttpError("Failed to log in user, try again.", 500);
     return next(error);
   }
 
@@ -93,6 +96,7 @@ const signup = async (req, res, next) => {
     userId: newUser.id,
     name: newUser.name,
     email: newUser.email,
+    image: newUser.image,
     privilege: newUser.privilege,
     token: token,
   });
@@ -147,6 +151,7 @@ const login = async (req, res, next) => {
     userId: existingUser.id,
     email: existingUser.email,
     name: existingUser.name,
+    image: existingUser.image,
     privilege: existingUser.privilege,
     token: token,
   });

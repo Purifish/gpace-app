@@ -10,7 +10,8 @@ router.get("/", coursesControllers.getCourses);
 
 router.post(
   "/create",
-  fileUpload.imageUpload.single("image"),
+  // fileUpload.imageUpload.single("image"),
+  fileUpload.cloudflareImageUpload.single("image"),
   coursesControllers.createCourse
 );
 
@@ -30,6 +31,12 @@ router.get(
   "/id/:courseId",
   fileUpload.pdfUpload.any(),
   coursesControllers.getResourcesByCourseId
+);
+
+router.delete(
+  "/delete/:courseId",
+  fileUpload.imageUpload.any(),
+  coursesControllers.deleteCourse
 );
 
 module.exports = router;

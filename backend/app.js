@@ -4,6 +4,7 @@ const path = require("path");
 const bodyParser = require("body-parser");
 const express = require("express");
 const mongoose = require("mongoose");
+const { S3Client, GetObjectCommand } = require("@aws-sdk/client-s3");
 
 const examPapersRoutes = require("./routes/examPapers-routes");
 const examSolutionRoutes = require("./routes/examSolutions-routes");
@@ -38,6 +39,52 @@ app.use((req, res, next) => {
   next();
 });
 
+/* For serving files */
+app.get("/uploads/temp/:fileName", async (req, res, next) => {
+  if (
+    !process.env.R2_ACCESS_KEY_ID ||
+    !process.env.R2_SECRET_ACCESS_KEY ||
+    !process.env.ENDPOINT ||
+    !process.env.BUCKET_NAME
+  ) {
+    return next(new HttpError("Missing env vars, contact admin!", 404));
+  }
+
+  const fileName = req.params.fileName;
+
+  let response;
+
+  try {
+    S3 = new S3Client({
+      region: "auto",
+      endpoint: process.env.ENDPOINT,
+      credentials: {
+        accessKeyId: process.env.R2_ACCESS_KEY_ID,
+        secretAccessKey: process.env.R2_SECRET_ACCESS_KEY,
+      },
+    });
+
+    response = await S3.send(
+      new GetObjectCommand({
+        Bucket: process.env.BUCKET_NAME,
+        Key: fileName,
+      })
+    );
+
+    const fileStream = response.Body;
+    let fileBuffer = Buffer.from([]);
+
+    for await (const chunk of fileStream) {
+      fileBuffer = Buffer.concat([fileBuffer, chunk]);
+    }
+
+    res.send(fileBuffer);
+  } catch (err) {
+    console.log(err.message);
+    return next(new HttpError("bad!", 404));
+  }
+});
+
 app.use("/api/quizzes", quizzesRoutes);
 
 app.use("/api/questions", questionsRoutes);
@@ -70,7 +117,7 @@ app.use((req, res, next) => {
   Catches an error thrown by above middleware
 */
 app.use((err, req, res, next) => {
-  if (req.file) {
+  if (req.file && req.file.path) {
     console.log("Error occurred, deleting file");
     fs.unlink(req.file.path, (err) => {
       console.log(err);

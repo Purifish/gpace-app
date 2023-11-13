@@ -1,8 +1,14 @@
+const fs = require("fs");
+
+const mongoose = require("mongoose");
+
 const HttpError = require("../models/http-error");
 const Course = require("../models/course");
 const ExamSolution = require("../models/examSolution");
-const mongoose = require("mongoose");
-const fs = require("fs");
+const {
+  uploadFileToCloudflare,
+  deleteFileFromCloudflare,
+} = require("../middleware/file-upload");
 
 const deleteExamSolution = async (req, res, next) => {
   const examSolutionId = req.params.examSolutionId;
@@ -34,7 +40,7 @@ const deleteExamSolution = async (req, res, next) => {
   //   );
   // }
 
-  const filePath = examSolution.file;
+  let filePath = examSolution.file;
 
   try {
     const sess = await mongoose.startSession();
@@ -47,9 +53,11 @@ const deleteExamSolution = async (req, res, next) => {
 
     /* Remove the file associated with this note */
     if (filePath) {
-      fs.unlink(filePath, (err) => {
-        console.log(err);
-      });
+      const fileName = filePath.split("/").at(-1);
+      deleteFileFromCloudflare(fileName);
+      // fs.unlink(filePath, (err) => {
+      //   console.log(err);
+      // });
     }
 
     await sess.commitTransaction();
@@ -88,10 +96,18 @@ const updateExamSolution = async (req, res, next) => {
   if (title) examSolution.title = title;
   if (link) examSolution.link = link;
 
-  let oldFile;
-  if (req.file && req.file.path) {
-    oldFile = examSolution.file;
-    examSolution.file = file;
+  let newFileName;
+
+  try {
+    if (req.file) {
+      newFileName = await uploadFileToCloudflare(req.file);
+      examSolution.file = `uploads/temp/${newFileName}`;
+    }
+  } catch (err) {
+    console.log(err.message);
+    return next(
+      new HttpError("Unknown error occurred, please try again later", 500)
+    );
   }
 
   try {
@@ -105,17 +121,12 @@ const updateExamSolution = async (req, res, next) => {
     );
   }
 
-  if (oldFile) {
-    fs.unlink(oldFile, (err) => {
-      console.log(err);
-    });
-  }
-
   res.json({
     examSolution: examSolution.toObject({ getters: true }),
   });
 };
 
+/* Tested */
 const createExamSolution = async (req, res, next) => {
   const courseId = req.params.courseId;
   const { title, link } = req.body;
@@ -137,14 +148,27 @@ const createExamSolution = async (req, res, next) => {
     return next(error);
   }
 
-  if (!link && (!req.file || !req.file.path)) {
+  if (!link && !req.file) {
     return next(new HttpError("Provide a link or a file!", 422));
+  }
+
+  let newFileName;
+
+  try {
+    if (req.file) {
+      newFileName = await uploadFileToCloudflare(req.file);
+    }
+  } catch (err) {
+    console.log(err.message);
+    return next(
+      new HttpError("Unknown error occurred, please try again later", 500)
+    );
   }
 
   const createdExamSolution = new ExamSolution({
     title: title,
     link: link || "",
-    file: req.file ? req.file.path : "",
+    file: req.file ? `uploads/temp/${newFileName}` : "",
     course: courseId,
   });
 
@@ -160,6 +184,9 @@ const createExamSolution = async (req, res, next) => {
     console.log("2");
     await session.commitTransaction(); // all changes successful, commit them to the DB
   } catch (err) {
+    if (newFileName) {
+      await deleteFileFromCloudflare(newFileName);
+    }
     const error = new HttpError(
       "Failed to create exam solution, try again.",
       500

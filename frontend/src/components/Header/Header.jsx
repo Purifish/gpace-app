@@ -1,9 +1,4 @@
-import { useContext, useState } from "react";
-
-import { AuthContext } from "../../contexts/auth-context";
-import s from "./style.module.css";
-import Logo from "../Logo/Logo";
-
+import { useContext, useEffect, useState } from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -14,14 +9,21 @@ import MenuIcon from "@mui/icons-material/Menu";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
-import { Avatar } from "@mui/material";
+import Avatar from "@mui/material/Avatar";
+
+import { useHttpClient } from "../../hooks/http-hook";
+import { AuthContext } from "../../contexts/auth-context";
+import s from "./style.module.css";
+import Logo from "../Logo/Logo";
 
 const pages = [];
 
 function Header(props) {
   const auth = useContext(AuthContext);
   const { openModal } = props;
+  const { sendRequest } = useHttpClient();
 
+  const [fileUrl, setFileUrl] = useState("");
   const [anchorElNav, setAnchorElNav] = useState(null);
   const [anchorElUser, setAnchorElUser] = useState(null);
   const loggedOutSettings = [
@@ -40,6 +42,27 @@ function Header(props) {
       },
     },
   ];
+
+  useEffect(() => {
+    const createTempUrl = async () => {
+      try {
+        const response = await sendRequest(
+          `${process.env.REACT_APP_ASSET_URL}/${auth.profilePicture}`
+        );
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          setFileUrl(url);
+        }
+      } catch (err) {}
+    };
+    if (auth.profilePicture) {
+      createTempUrl();
+    } else {
+      setFileUrl("");
+    }
+  }, [auth.profilePicture, sendRequest, setFileUrl]);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -129,7 +152,7 @@ function Header(props) {
 
           <Box sx={{ flexGrow: 0 }}>
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-              <Avatar alt="User" src="" />
+              <Avatar alt="User" src={`${fileUrl}`} />
             </IconButton>
             <Menu
               sx={{ mt: "45px" }}

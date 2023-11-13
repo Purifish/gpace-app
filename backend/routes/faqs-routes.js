@@ -7,13 +7,13 @@ const router = express.Router();
 
 router.post(
   "/create/:courseId",
-  fileUpload.pdfUpload.single("pdf"),
+  fileUpload.pdfUpload.any(),
   faqsControllers.createFaq
 );
 
 router.patch(
   "/update/:faqId",
-  fileUpload.pdfUpload.single("pdf"),
+  fileUpload.pdfUpload.any(),
   faqsControllers.updateFaq
 );
 

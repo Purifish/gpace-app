@@ -1,8 +1,14 @@
+const fs = require("fs");
+
+const mongoose = require("mongoose");
+
 const HttpError = require("../models/http-error");
 const Course = require("../models/course");
 const Note = require("../models/note");
-const mongoose = require("mongoose");
-const fs = require("fs");
+const {
+  uploadFileToCloudflare,
+  deleteFileFromCloudflare,
+} = require("../middleware/file-upload");
 
 const deleteNote = async (req, res, next) => {
   const noteId = req.params.noteId;
@@ -45,9 +51,10 @@ const deleteNote = async (req, res, next) => {
 
     /* Remove the file associated with this note */
     if (filePath) {
-      fs.unlink(filePath, (err) => {
-        console.log(err);
-      });
+      await deleteFileFromCloudflare(filePath);
+      // fs.unlink(filePath, (err) => {
+      //   console.log(err);
+      // });
     }
 
     await sess.commitTransaction();
@@ -84,24 +91,30 @@ const updateNote = async (req, res, next) => {
   if (description) note.description = description;
   if (link) note.link = link;
 
-  let oldFile;
-  if (req.file && req.file.path) {
-    oldFile = note.file;
-    note.file = file;
-  }
+  let newFileName;
 
+  try {
+    if (req.file) {
+      const oldFile = note.file;
+      if (oldFile) {
+        await deleteFileFromCloudflare(oldFile);
+      }
+      newFileName = await uploadFileToCloudflare(req.file);
+      note.file = `uploads/temp/${newFileName}`;
+    }
+  } catch (err) {
+    console.log(err.message);
+    return next(
+      new HttpError("Unknown error occurred, please try again later", 500)
+    );
+  }
   try {
     await note.save();
   } catch (err) {
+    // TODO: roll back file upload/delete
     return next(
       new HttpError("Something went wrong, could not update note.", 500)
     );
-  }
-
-  if (oldFile) {
-    fs.unlink(oldFile, (err) => {
-      console.log(err);
-    });
   }
 
   res.json({
@@ -109,6 +122,7 @@ const updateNote = async (req, res, next) => {
   });
 };
 
+/* Tested */
 const createNote = async (req, res, next) => {
   const courseId = req.params.courseId;
   const { title, description, link } = req.body;
@@ -127,30 +141,44 @@ const createNote = async (req, res, next) => {
     return next(error);
   }
 
-  if (!link && (!req.file || !req.file.path)) {
+  if (!link && !req.file) {
     return next(new HttpError("Provide a link or a file!", 422));
+  }
+
+  let newFileName;
+
+  try {
+    if (req.file) {
+      newFileName = await uploadFileToCloudflare(req.file);
+    }
+  } catch (err) {
+    console.log(err.message);
+    return next(
+      new HttpError("Unknown error occurred, please try again later", 500)
+    );
   }
 
   const createdNote = new Note({
     title: title,
     description: description,
     link: link || "",
-    file: req.file ? req.file.path : "",
+    file: req.file ? `uploads/temp/${newFileName}` : "",
     course: courseId,
   });
 
   try {
     const session = await mongoose.startSession(); // start session
     session.startTransaction();
-    console.log("0");
 
     await createdNote.save({ session: session }); // remember to specify the session
-    console.log("1");
+
     course.notes.push(createdNote); // only the ID is actually pushed
     await course.save({ session: session });
-    console.log("2");
     await session.commitTransaction(); // all changes successful, commit them to the DB
   } catch (err) {
+    if (newFileName) {
+      await deleteFileFromCloudflare(newFileName);
+    }
     const error = new HttpError("Failed to create note, try again.", 500);
     return next(error);
   }
