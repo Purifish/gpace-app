@@ -9,6 +9,8 @@
 /frontend/build
 
 # misc
+.env
+.env.production
 /.vscode
 /backend/.vscode
 .DS_Store
